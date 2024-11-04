@@ -40,6 +40,18 @@ db.connect()
 // ------------------------------------
 //            App Settings
 // ------------------------------------
+// create `ExpressHandlebars` instance and configure the layouts and partials dir.
+const hbs = handlebars.create({
+  extname: 'hbs',
+  layoutsDir: __dirname + '/views/layouts',
+  partialsDir: __dirname + '/views/partials',
+});
+
+// Register `hbs` as our view engine using its bound `engine()` function.
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.json());
 
 app.use( // initialize session variables
     session({
@@ -60,9 +72,31 @@ app.use( // initialize session variables
 // ------------------------------------
 
 app.get('/', (req, res) => { // temporary route that just shows a message
-    res.send('<h1>This is Project-ActiveU!</h1>');
+    // removing this temp response.
+    // res.send('<h1>This is Project-ActiveU!</h1>'); 
+    res.redirect('/login'); // Redirect to the /login route
 });
-  
+app.get('/login', (req, res) => {
+  res.render('pages/login'); // Render login.hbs (assuming it's in views/pages folder)
+});
+
+
+app.get('/register', (req, res) => {
+  res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
+});
+
+app.get('/logout', (req, res) => {
+  // Destroy the session
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.redirect('/'); // Redirect to home if session destruction fails
+    }
+
+    // Render the logout page with a success message
+    res.render('pages/logout');
+  });
+});
 // ------------------------------------
 //             Start Server
 // ------------------------------------
