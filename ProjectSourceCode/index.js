@@ -47,6 +47,8 @@ const hbs = handlebars.create({
   partialsDir: __dirname + '/views/partials',
 });
 // Register `hbs` as our view engine using its bound `engine()` function.
+// app.use(express.static(path.join(__dirname, 'views')));
+
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
