@@ -58,6 +58,20 @@ describe('Testing Registering', () => {
   });
 });
 
+describe('Testing Redirect', () => {
+  // Sample test case given to test /test endpoint.
+  it('\test route should redirect to /login with 302 HTTP status code', done => {
+    chai
+      .request(server)
+      .get('/test')
+      .end((err, res) => {
+        res.should.have.status(302); // Expecting a redirect status code
+        res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/); // Expecting a redirect to /login with the mentioned Regex
+        done();
+      });
+  });
+});
+
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
 // ********************************************************************************
