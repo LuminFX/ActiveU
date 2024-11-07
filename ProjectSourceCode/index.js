@@ -82,9 +82,20 @@ app.get('/login', (req, res) => {
   res.render('pages/login'); // Render login.hbs (assuming it's in views/pages folder)
 });
 
-
 app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
+});
+
+app.post('/register', async (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  try {
+    const hash = await bcrypt.hash(password, 10); 
+    await db.none('INSERT INTO users(email, password) VALUES($1, $2)', [email, hash]); // return none because we are not expecting any data back
+    res.redirect('/login');
+  } catch (error) {
+    res.render('pages/register', { message: 'Could not create user.'});
+  }
 });
 
 app.get('/welcome', (req, res) => {
