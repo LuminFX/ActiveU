@@ -1,0 +1,74 @@
+1) Objective: Verify that users can successfully log different types of workouts, such as weightlifting, cardio, or custom workouts.
+
+Test Environment: Localhost environment to simulate the fitness app backend and frontend.
+
+Test Data:
+
+User with workout history: user_id_001
+New user without history: user_id_002
+Workout entries: weightlifting (bench press, deadlift), cardio (running, cycling)
+Expected workout metrics (weight, reps, distance, time)
+Test Cases:
+
+TC 1.1: Log a new workout (bench press, 100 lbs, 8 reps). Verify that workout data is saved and accessible in the user history.
+TC 1.2: Edit a previously logged workout. Update weight from 100 lbs to 110 lbs and verify the update is saved.
+TC 1.3: Attempt to log a workout with invalid data (e.g., negative weight) and verify that an error message is displayed.
+Expected Results:
+
+The app saves and displays workout data accurately.
+Error messages appear for invalid data.
+User Acceptance Testers:
+
+
+
+
+
+2) Testers will be users familiar with logging workouts on similar apps, such as experienced fitness enthusiasts.
+
+Feature 2: Progress Tracking
+Objective: Ensure users can view progress over time for specific exercises and track increases in weight or reps for strength-based workouts.
+
+Test Environment: Cloud environment to simulate real-time data updates and ensure persistence across sessions.
+
+Test Data:
+
+User with multi-day workout history: user_id_001
+Exercises tracked: Squat, Bench Press
+Historical data showing incremental increases in weight and reps over 4 weeks
+Test Cases:
+
+TC 2.1: Verify that after logging 3 workouts, your workout history is shown
+TC 2.2: Ensure monthly progress summary reflects increases in weight and reps accurately.
+TC 2.3: Attempt to view progress for an exercise not yet logged and verify that a message indicates "No data available."
+Expected Results:
+
+Progress data is displayed accurately, reflecting the user’s workout history.
+Users receive clear feedback when no data exists for a specific exercise.
+User Acceptance Testers:
+
+Testers include frequent gym users and those who track progress, as they can validate realistic weight progression.
+
+
+
+Feature 3: Social Feature - Friends’ Progress and Congratulatory Comments
+Objective: Validate that users can view friends’ progress on specific exercises and post congratulatory comments.
+
+Test Environment: Cloud environment to test real-time social interactions and data synchronization between users.
+
+Test Data:
+
+User: user_id_001 with friends user_id_002 and user_id_003
+Friends’ workout history showing recent personal bests
+Comment data (text field for congratulatory messages)
+Test Cases:
+
+TC 3.1: User views friends’ progress (e.g., user_id_002 achieving a new bench press max). Verify that progress details are visible.
+TC 3.2: User posts a congratulatory message for a friend’s new max. Verify that the comment appears on the friend’s feed.
+TC 3.3: User tries to post a comment without text and verify that an error message prompts them to enter a message.
+Expected Results:
+
+Friends’ progress displays correctly.
+Comments are posted successfully, and validation is enforced for empty comments.
+User Acceptance Testers:
+
+Social feature testers, ideally users who engage in fitness communities and track each other’s progress.
