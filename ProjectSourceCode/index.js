@@ -87,6 +87,10 @@ app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get('/logout', (req, res) => {
   // Destroy the session
   req.session.destroy((err) => {
@@ -102,5 +106,5 @@ app.get('/logout', (req, res) => {
 // ------------------------------------
 //             Start Server
 // ------------------------------------
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
