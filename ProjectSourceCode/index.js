@@ -81,34 +81,87 @@ app.get('/', (req, res) => { // temporary route that just shows a message
 app.get('/login', (req, res) => {
   res.render('pages/login'); // Render login.hbs (assuming it's in views/pages folder)
 });
+app.post('/login', async (req, res) => {
+  const { usernameOrEmail, password } = req.body;
+  try {
+    //query to find the user by username
+    const userQuery = 'SELECT * FROM users WHERE username = $1 OR email = $1';
+    const user = await db.oneOrNone(userQuery, [usernameOrEmail]);
+
+    //if user is not found redirect to register
+    if (!user) {
+      return res.redirect('/register');
+    }
+
+    //compare the provided password with the hashed password in the database
+    const match = await bcrypt.compare(password, user.password);
+
+    //if password does not match render login page with error message
+    if (!match) {
+      return res.render('pages/login', {
+        message: 'Incorrect username or password.'
+      });
+    }
+
+    //if password matches save user details in session and redirect to /home
+    req.session.user = user;
+    req.session.save(() => {
+      res.redirect('/home');
+    });
+
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.render('pages/login', {
+      message: 'An error occurred during login. Please try again.'
+    });
+  }
+});
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // If session variable `user` is not set, redirect to login page
+    return res.redirect('/login');
+  }
+  next(); // Proceed to the next middleware or route handler if authenticated
+};
 
 app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
-app.get('/home', (req, res) => {
-  res.render('pages/home'); // Render home.hbs (assuming it's in views/pages folder)
+app.get('/welcome', (req, res) => {
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
 app.post('/register', async (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
-
-  if (!password || password.length < 5) {
-    return res.status(400).json({ message: 'Password must be at least 5 characters long.' });
-  }
-
   try {
-    const hash = await bcrypt.hash(password, 10);
-    await db.none('INSERT INTO users(email, password) VALUES($1, $2)', [email, hash]); // return none because we are not expecting any data back
+    let password = req.body.password;
+
+    if (!password || password.length < 5) {
+      return res.status(400).json({ message: 'Password must be at least 5 characters long.' });
+    }
+    // hash the password using bcrypt with a salt factor of 10
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    // SQL query to insert the user into the database
+    const insertUserQuery = `
+      INSERT INTO users (username, email, password)
+      VALUES ($1, $2, $3)
+    `;
+    await db.none(insertUserQuery, [req.body.username, req.body.email, hashedPassword]);
+
+    // on success, redirect to login
     res.redirect('/login');
   } catch (error) {
-    res.render('pages/register', { message: 'Could not create user.' });
+    console.error('Error registering user:', error);
+
+    // on failure redirect back to register
+    res.redirect('/register');
   }
 });
 
-app.get('/welcome', (req, res) => {
-  res.json({ status: 'success', message: 'Welcome!' });
+app.get('/home', auth, async (req, res) => {
+  res.render('pages/home');
 });
 
 app.get('/logout', (req, res) => {
@@ -124,8 +177,18 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/friends', (req, res) => {
+app.get('/friends', auth, (req, res) => {
   res.render('pages/friends'); // Render login.hbs (assuming it's in views/pages folder)
+});
+
+app.get('/debug/users', async (req, res) => {
+  try {
+    const users = await db.any('SELECT * FROM users');
+    res.json(users); // Return the data as JSON
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send('Error fetching users');
+  }
 });
 // ------------------------------------
 //             Start Server
