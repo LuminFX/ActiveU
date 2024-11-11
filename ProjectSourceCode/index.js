@@ -128,6 +128,7 @@ const auth = (req, res, next) => {
 app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
+
 app.post('/register', async (req, res) => {
   try {
     // hash the password using bcrypt with a salt factor of 10
@@ -138,8 +139,6 @@ app.post('/register', async (req, res) => {
       INSERT INTO users (username, email, password)
       VALUES ($1, $2, $3)
     `;
-
-    // execute the query with the username and hashed password
     await db.none(insertUserQuery, [req.body.username, req.body.email, hashedPassword]);
 
     // on success, redirect to login
@@ -152,7 +151,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.get('/discover', auth, async (req, res) => {
+app.get('/home', auth, async (req, res) => {
   res.render('pages/home');
 });
 app.get('/logout', (req, res) => {
