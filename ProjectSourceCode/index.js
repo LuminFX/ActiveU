@@ -119,6 +119,10 @@ app.get('/logout', (req, res) => {
     res.render('pages/logout');
   });
 });
+
+app.get('/friends', (req, res) => {
+  res.render('pages/friends'); // Render login.hbs (assuming it's in views/pages folder)
+});
 // ------------------------------------
 //             Start Server
 // ------------------------------------
