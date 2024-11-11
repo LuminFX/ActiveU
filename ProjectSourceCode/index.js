@@ -129,10 +129,6 @@ app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
-app.get('/home', (req, res) => {
-  res.render('pages/home'); // Render register.hbs (assuming it's in views/pages folder)
-});
-
 app.post('/register', async (req, res) => {
   try {
     // hash the password using bcrypt with a salt factor of 10
