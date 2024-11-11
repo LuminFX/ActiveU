@@ -129,10 +129,6 @@ app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
-app.get('/welcome', (req, res) => {
-  res.json({ status: 'success', message: 'Welcome!' });
-});
-
 app.post('/register', async (req, res) => {
   try {
     let password = req.body.password;
