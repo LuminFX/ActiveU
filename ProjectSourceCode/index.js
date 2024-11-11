@@ -87,6 +87,10 @@ app.get('/register', (req, res) => {
   res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
+app.get('/home', (req, res) => {
+  res.render('pages/home'); // Render register.hbs (assuming it's in views/pages folder)
+});
+
 app.get('/logout', (req, res) => {
   // Destroy the session
   req.session.destroy((err) => {
