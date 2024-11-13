@@ -73,14 +73,45 @@ app.use(
 //             API Routes
 // ------------------------------------
 
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // If session variable `user` is not set, redirect to login page
+    return res.redirect('/login');
+  }
+  next(); // Proceed to the next middleware or route handler if authenticated
+};
+
+// Get Requests
+
 app.get('/', (req, res) => { // temporary route that just shows a message
   // removing this temp response.
   // res.send('<h1>This is Project-ActiveU!</h1>'); 
   res.redirect('/login'); // Redirect to the /login route
 });
+
 app.get('/login', (req, res) => {
   res.render('pages/login'); // Render login.hbs (assuming it's in views/pages folder)
 });
+
+app.get('/register', (req, res) => {
+  res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
+});
+
+app.get('/home', auth, async (req, res) => {
+  res.render('pages/home');
+});
+
+app.get('/friends', auth, (req, res) => {
+  res.render('pages/friends'); // Render login.hbs (assuming it's in views/pages folder)
+});
+
+app.get('/welcome', (req, res) => { // dummy request for testing lab 11
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
+// Post Requests
+
 app.post('/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
   try {
@@ -98,9 +129,7 @@ app.post('/login', async (req, res) => {
 
     //if password does not match render login page with error message
     if (!match) {
-      return res.render('pages/login', {
-        message: 'Incorrect username or password.'
-      });
+      return res.status(400).json({ message: 'Incorrect username or password.' });
     }
 
     //if password matches save user details in session and redirect to /home
@@ -115,18 +144,6 @@ app.post('/login', async (req, res) => {
       message: 'An error occurred during login. Please try again.'
     });
   }
-});
-// Authentication Middleware.
-const auth = (req, res, next) => {
-  if (!req.session.user) {
-    // If session variable `user` is not set, redirect to login page
-    return res.redirect('/login');
-  }
-  next(); // Proceed to the next middleware or route handler if authenticated
-};
-
-app.get('/register', (req, res) => {
-  res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
 });
 
 app.post('/register', async (req, res) => {
@@ -156,9 +173,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.get('/home', auth, async (req, res) => {
-  res.render('pages/home');
-});
+// Get requests
 
 app.get('/logout', (req, res) => {
   // Destroy the session
@@ -173,10 +188,6 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/friends', auth, (req, res) => {
-  res.render('pages/friends'); // Render login.hbs (assuming it's in views/pages folder)
-});
-
 app.get('/debug/users', async (req, res) => {
   try {
     const users = await db.any('SELECT * FROM users');
@@ -186,6 +197,7 @@ app.get('/debug/users', async (req, res) => {
     res.status(500).send('Error fetching users');
   }
 });
+
 // ------------------------------------
 //             Start Server
 // ------------------------------------

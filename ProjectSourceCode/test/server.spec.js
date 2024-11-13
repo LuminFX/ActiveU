@@ -36,7 +36,7 @@ describe('Testing Registering', () => {
     chai
       .request(server)
       .post('/register')
-      .send({ password: 'mypassword', email: 'myemail@gmail.com' })
+      .send({ username: 'regTestUser', password: 'testpassword', email: 'myemail@gmail.com' })
       .end((err, res) => {
         expect(res).to.have.status(200);
         res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/)
@@ -49,7 +49,7 @@ describe('Testing Registering', () => {
     chai
       .request(server)
       .post('/register')
-      .send({ password: 'a', email: 20 })
+      .send({username: 'regTestUser', password: 'a', email: 20 })
       .end((err, res) => {
         expect(res).to.have.status(400);
         expect(res.body.message).to.equals('Password must be at least 5 characters long.');
@@ -58,19 +58,34 @@ describe('Testing Registering', () => {
   });
 });
 
-// describe('Testing Redirect', () => {
-//   // Sample test case given to test /test endpoint.
-//   it('\test route should redirect to /login with 302 HTTP status code', done => {
-//     chai
-//       .request(server)
-//       .get('/test')
-//       .end((err, res) => {
-//         res.should.have.status(302); // Expecting a redirect status code
-//         res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/); // Expecting a redirect to /login with the mentioned Regex
-//         done();
-//       });
-//   });
-// });
+describe('Testing Login', () => {
+
+  // verify whether its getting properly inserted into the users table. 
+  it('positive : /login', done => {
+    chai
+      .request(server)
+      .post('/login')
+      .send({ usernameOrEmail: 'regTestUser', password: 'testpassword'})
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        res.should.redirectTo(/^.*127\.0\.0\.1.*\/home$/)
+        done();
+      });
+  });
+
+  // testing whether your API recongizes incorrect POSTs and responds with the appropriate error message.
+  it('Negative : /login.', done => {
+    chai
+      .request(server)
+      .post('/login')
+      .send({ usernameOrEmail: 'regTestUser', password: 'wrongPassword' })
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        expect(res.body.message).to.equals('Incorrect username or password.');
+        done();
+      });
+  });
+});
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
