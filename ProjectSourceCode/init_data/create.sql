@@ -57,3 +57,18 @@
         
         FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE
     );
+
+    /*
+    CREATE TABLE workout_reactions (
+        
+        reaction_id SERIAL PRIMARY KEY,
+        workout_id INT NOT NULL,
+        
+        username VARCHAR(50) NOT NULL,
+        reaction TEXT,  -- could be a comment or emoji
+        
+        FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE,
+        FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+    );
+    */ -- uncomment when ready to approach. i doubt there's anything to modify
+    
