@@ -1,5 +1,7 @@
 -- USER STUFF
 
+    CREATE TYPE friendship_status AS ENUM ('pending', 'accepted');
+
     CREATE TABLE users (
         
         username VARCHAR(50) PRIMARY KEY,
@@ -12,7 +14,7 @@
         user1 VARCHAR(50) NOT NULL,
         user2 VARCHAR(50) NOT NULL,
         
-        status ENUM('pending', 'accepted') DEFAULT 'pending',
+        status friendship_status DEFAULT 'pending',
         
         PRIMARY KEY (user1, user2),
         FOREIGN KEY (user1) REFERENCES users(username) ON DELETE CASCADE,
