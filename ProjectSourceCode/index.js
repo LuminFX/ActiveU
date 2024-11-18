@@ -92,11 +92,28 @@ app.get('/', (req, res) => { // temporary route that just shows a message
 });
 
 app.get('/login', (req, res) => {
-  res.render('pages/login'); // Render login.hbs (assuming it's in views/pages folder)
+  const message = req.session.message;
+  const error = req.session.error;
+
+  // Clear the message and error after rendering
+  req.session.message = null;
+  req.session.error = null;
+
+  res.render('pages/login', {
+    message: message,
+    error: error
+  });
 });
 
 app.get('/register', (req, res) => {
-  res.render('pages/register'); // Render register.hbs (assuming it's in views/pages folder)
+  const message = req.session.message;
+  const error = req.session.error;
+
+  // Clear session variables after retrieving them
+  req.session.message = null;
+  req.session.error = null;
+
+  res.render('pages/register', { message, error });
 });
 
 app.get('/home', auth, async (req, res) => {
@@ -172,6 +189,8 @@ app.post('/login', async (req, res) => {
 
     //if user is not found redirect to register
     if (!user) {
+      req.session.message = 'Email or username not found. Register here';
+      req.session.error = true;
       return res.redirect('/register');
     }
 
@@ -180,10 +199,16 @@ app.post('/login', async (req, res) => {
 
     //if password does not match render login page with error message
     if (!match) {
-      return res.status(400).json({ message: 'Incorrect username or password.' });
+      req.session.message = 'Incorrect password';
+      req.session.error = true;
+      return res.redirect('/login'); // Use return to stop execution
     }
 
     //if password matches save user details in session and redirect to /home
+
+    req.session.message = null; // Clear any previous messages
+    req.session.error = null;
+
     req.session.user = user;
     req.session.save(() => {
       res.redirect('/home');
@@ -191,9 +216,7 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Error logging in:', error);
-    res.render('pages/login', {
-      message: 'An error occurred during login. Please try again.'
-    });
+    res.render('pages/login');
   }
 });
 
@@ -202,7 +225,9 @@ app.post('/register', async (req, res) => {
     let password = req.body.password;
 
     if (!password || password.length < 5) {
-      return res.status(400).json({ message: 'Password must be at least 5 characters long.' });
+      req.session.message = 'Password must be at least 5 characters long.';
+      req.session.error = true;
+      return res.redirect('/register'); // Use return to stop execution
     }
     // hash the password using bcrypt with a salt factor of 10
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
