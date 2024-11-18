@@ -111,6 +111,23 @@ app.get('/welcome', (req, res) => { // dummy request for testing lab 11
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get('/account', auth, async (req, res) => { // get basic account information for now. TODO: add workouts and friends fetching
+  try {
+    const username = req.session.user.username;
+    const userQuery = 'SELECT username, email FROM users WHERE username = $1';
+    const userData = await db.oneOrNone(userQuery, [username]);
+
+    if (userData) {
+      res.render('pages/account', userData);
+    } else {
+      res.status(404).send('User not found');
+    }
+  } catch (error) {
+    console.error('Error fetching primary user data', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Post Requests
 
 app.post('/login', async (req, res) => {
