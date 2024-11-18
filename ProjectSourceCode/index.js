@@ -103,8 +103,41 @@ app.get('/home', auth, async (req, res) => {
   res.render('pages/home');
 });
 
-app.get('/friends', auth, (req, res) => {
-  res.render('pages/friends'); // Render login.hbs (assuming it's in views/pages folder)
+app.get('/friends', auth, async (req, res) => {
+  try {
+    const username = req.session.user.username;
+
+    const acceptedFriendsQuery = `
+      SELECT 
+        CASE 
+          WHEN user1 = $1 THEN user2 
+          ELSE user1 
+        END AS username
+      FROM friendships
+      WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+    `;
+
+    const pendingFriendsQuery = `
+      SELECT 
+        CASE 
+          WHEN user1 = $1 THEN user2 
+          ELSE user1 
+        END AS username
+      FROM friendships
+      WHERE (user1 = $1 OR user2 = $1) AND status = 'pending';
+    `;
+
+    const friends = await db.any(acceptedFriendsQuery, [username]);
+    const pending = await db.any(pendingFriendsQuery, [username]);
+
+    res.render('pages/friends', { 
+      friends, 
+      pending
+    }); 
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/welcome', (req, res) => { // dummy request for testing lab 11
@@ -213,6 +246,32 @@ app.get('/debug/users', async (req, res) => {
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).send('Error fetching users');
+  }
+});
+
+app.get('/debug/friends', async (req, res) => {
+  try {
+    const friendships = await db.any('SELECT * FROM friendships');
+    res.json(friendships); // Return the data as JSON
+  } catch (error) {
+    console.error('Error fetching friendships:', error);
+    res.status(500).send('Error fetching users');
+  }
+});
+
+app.get('/genpassword/:password', async (req, res) => {
+  try {
+    const password = req.params.password;
+
+    if (!password || password.length < 5) {
+      return res.status(400).json({ message: 'Password must be at least 5 characters long.' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    res.json({ hashedPassword });
+  } catch (error) {
+    console.error('Error hashing password:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
