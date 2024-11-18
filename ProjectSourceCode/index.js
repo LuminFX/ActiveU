@@ -79,6 +79,7 @@ const auth = (req, res, next) => {
     // If session variable `user` is not set, redirect to login page
     return res.redirect('/login');
   }
+  res.locals.auth = true; // User is authenticated, set `auth` to true
   next(); // Proceed to the next middleware or route handler if authenticated
 };
 

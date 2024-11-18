@@ -1,4 +1,8 @@
 {{>header}}
-{{>nav}}
+{{#if auth}}
+    {{>nav2}}
+{{else}}
+    {{>nav}}
+{{/if}}
 {{{body}}}
 {{>footer}}
