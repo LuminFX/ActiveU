@@ -60,7 +60,6 @@
         FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE
     );
 
-    /*
     CREATE TABLE workout_reactions (
         
         reaction_id SERIAL PRIMARY KEY,
@@ -72,5 +71,4 @@
         FOREIGN KEY (workout_id) REFERENCES workouts(workout_id) ON DELETE CASCADE,
         FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
     );
-    */ -- uncomment when ready to approach. i doubt there's anything to modify
     
