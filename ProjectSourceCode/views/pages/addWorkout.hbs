@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Workout</title>
+</head>
+<body>
+
+    {{> nav}} <!-- Includes the nav.hbs partial -->
+
+    <header>
+        <h1>Add Workout</h1>
+    </header>
+
+    <section>
+        <!-- Search Bar -->
+        <input type="text" id="workoutSearch" placeholder="Search for workouts...">
+        <button id="searchButton">Search</button>
+
+        <!-- Search Results -->
+        <div id="searchResults">
+            <!-- Workout results from search will appear here -->
+        </div>
+    </section>
+
+    <section>
+        <h2>Selected Workouts</h2>
+        <div id="selectedWorkouts">
+            <!-- Selected workouts to log will appear here -->
+        </div>
+    </section>
+
+    <!-- Template for a Workout Entry -->
+    <script id="workout-template" type="text/x-handlebars-template">
+        <div class="workout-entry">
+            <h3>{{name}}</h3>
+            <label>Weight (lbs):</label>
+            <input type="number" placeholder="Weight" class="workout-weight" data-id="{{id}}">
+            <label>Sets:</label>
+            <input type="number" placeholder="Sets" class="workout-sets" data-id="{{id}}">
+            <button class="remove-workout" data-id="{{id}}">Remove</button>
+        </div>
+    </script>
+
+    <script>
+        // JavaScript to handle searching, selecting, and adding workouts
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const query = document.getElementById('workoutSearch').value;
+            // Mock search - this would call your API in a real setup
+            const mockResults = [
+                { id: 1, name: 'Bench Press' },
+                { id: 2, name: 'Squat' },
+                { id: 3, name: 'Deadlift' },
+            ];
+            displaySearchResults(mockResults.filter(w => w.name.toLowerCase().includes(query.toLowerCase())));
+        });
+
+        function displaySearchResults(results) {
+            const searchResultsDiv = document.getElementById('searchResults');
+            searchResultsDiv.innerHTML = '';
+            results.forEach(workout => {
+                const workoutElement = document.createElement('div');
+                workoutElement.innerHTML = `
+                    <span>${workout.name}</span>
+                    <button onclick="addWorkout(${workout.id}, '${workout.name}')">+</button>
+                `;
+                searchResultsDiv.appendChild(workoutElement);
+            });
+        }
+
+        function addWorkout(id, name) {
+            const selectedWorkoutsDiv = document.getElementById('selectedWorkouts');
+            const workoutTemplate = document.getElementById('workout-template').innerHTML;
+            const workoutHTML = workoutTemplate.replace(/{{name}}/g, name).replace(/{{id}}/g, id);
+            selectedWorkoutsDiv.insertAdjacentHTML('beforeend', workoutHTML);
+        }
+
+        // Remove workout entry
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-workout')) {
+                event.target.closest('.workout-entry').remove();
+            }
+        });
+    </script>
+
+    {{> footer}} <!-- Includes the footer.hbs partial -->
+
+</body>
+</html>
