@@ -4,56 +4,122 @@
     <meta charset="UTF-8">
     <title>Create Workout</title>
     <style>
-        .timer-container {
+        body {
+            background-color: #121212; /* Dark background */
+            color: #f1c40f; /* Yellow text for headings and accents */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-bottom: 2px solid #f1c40f;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+            color: #f1c40f;
+        }
+
+        .timer-section {
             text-align: center;
             margin: 50px 0;
         }
+
         .timer-display {
-            font-size: 48px;
+            font-size: 80px;
+            font-weight: bold;
+            background-color: #1e1e1e;
+            border: 4px solid #f1c40f;
+            border-radius: 10px;
+            padding: 20px;
+            display: inline-block;
+            color: #f1c40f;
+        }
+
+        .timer-buttons {
             margin: 20px 0;
         }
+
         .timer-buttons button {
-            font-size: 18px;
-            margin: 5px;
+            font-size: 20px;
+            margin: 10px;
+            padding: 10px 20px;
+            border: 2px solid #f1c40f;
+            border-radius: 5px;
+            background-color: #f1c40f;
+            color: #121212;
+            cursor: pointer;
         }
-        .workout-name {
-            margin: 20px;
+
+        .timer-buttons button:hover {
+            background-color: #d4ac0d;
+        }
+
+        .workout-name-section {
             text-align: center;
+            margin: 20px 0;
+        }
+
+        .workout-name-section input {
+            padding: 10px;
+            font-size: 18px;
+            width: 50%;
+            max-width: 400px;
+            border: 2px solid #f1c40f;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #f1c40f;
+        }
+
+        .save-button {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .save-button button {
+            font-size: 20px;
+            padding: 10px 30px;
+            border: 2px solid #f1c40f;
+            border-radius: 5px;
+            background-color: #f1c40f;
+            color: #121212;
+            cursor: pointer;
+        }
+
+        .save-button button:hover {
+            background-color: #d4ac0d;
         }
     </style>
 </head>
 <body>
 
-    {{> nav}} <!-- Include the navbar -->
-
     <header>
         <h1>Create Workout</h1>
     </header>
 
-    <div class="timer-container">
-        <!-- Timer Display -->
+    <section class="timer-section">
         <div class="timer-display" id="timer">00:00:00</div>
-
-        <!-- Timer Buttons -->
         <div class="timer-buttons">
             <button id="startButton">Start</button>
             <button id="pauseButton">Pause</button>
             <button id="stopButton">Stop</button>
         </div>
-    </div>
+    </section>
 
-    <!-- Workout Name Input -->
-    <div class="workout-name">
+    <section class="workout-name-section">
         <label for="workoutName">Workout Name:</label>
         <input type="text" id="workoutName" placeholder="Enter workout name">
-    </div>
+    </section>
 
-    <!-- Save Button -->
-    <div class="save-button" style="text-align: center;">
+    <div class="save-button">
         <button id="saveWorkoutButton">Save Workout</button>
     </div>
 
-    {{> footer}} <!-- Include the footer -->
 
     <script>
         // Timer Variables

@@ -110,6 +110,16 @@ app.get('/welcome', (req, res) => { // dummy request for testing lab 11
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+// Route for Create Workout page
+app.get('/createWorkout', auth, (req, res) => {
+  res.render('pages/createWorkout'); // Render createWorkout.hbs
+});
+
+// Route for Add Workout page
+app.get('/addWorkout', auth, (req, res) => {
+  res.render('pages/addWorkout'); // Render addWorkout.hbs
+});
+
 // Post Requests
 
 app.post('/login', async (req, res) => {

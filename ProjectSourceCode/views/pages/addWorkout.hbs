@@ -3,44 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Workout</title>
+    <style>
+        body {
+            background-color: #121212; /* Dark background */
+            color: #f1c40f; /* Yellow text for headings and accents */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-bottom: 2px solid #f1c40f;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 36px;
+            color: #f1c40f;
+        }
+
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 30vh;
+            text-align: center;
+        }
+
+        .search-bar {
+            width: 50%;
+            max-width: 600px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 80%;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: 2px solid #f1c40f;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+            background-color: #1e1e1e;
+            color: #f1c40f;
+        }
+
+        .search-bar button {
+            padding: 12px 20px;
+            font-size: 18px;
+            border: 2px solid #f1c40f;
+            border-radius: 0 5px 5px 0;
+            background-color: #f1c40f;
+            color: #121212;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #d4ac0d;
+        }
+
+        .results-section, .selected-section {
+            margin: 20px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-section h2, .selected-section h2 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 24px;
+            color: #f1c40f;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f1c40f;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item button {
+            background-color: #f1c40f;
+            color: #121212;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .result-item button:hover {
+            background-color: #d4ac0d;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
 
-    {{> nav}} <!-- Includes the nav.hbs partial -->
 
     <header>
         <h1>Add Workout</h1>
     </header>
 
-    <section>
-        <!-- Search Bar -->
-        <input type="text" id="workoutSearch" placeholder="Search for workouts...">
-        <button id="searchButton">Search</button>
+    <section class="search-section">
+        <div class="search-bar">
+            <input type="text" id="workoutSearch" placeholder="Search for workouts...">
+            <button id="searchButton">Search</button>
+        </div>
+    </section>
 
-        <!-- Search Results -->
+    <section class="results-section">
+        <h2>Search Results</h2>
         <div id="searchResults">
             <!-- Workout results from search will appear here -->
         </div>
     </section>
 
-    <section>
+    <section class="selected-section">
         <h2>Selected Workouts</h2>
         <div id="selectedWorkouts">
             <!-- Selected workouts to log will appear here -->
         </div>
     </section>
 
-    <!-- Template for a Workout Entry -->
-    <script id="workout-template" type="text/x-handlebars-template">
-        <div class="workout-entry">
-            <h3>{{name}}</h3>
-            <label>Weight (lbs):</label>
-            <input type="number" placeholder="Weight" class="workout-weight" data-id="{{id}}">
-            <label>Sets:</label>
-            <input type="number" placeholder="Sets" class="workout-sets" data-id="{{id}}">
-            <button class="remove-workout" data-id="{{id}}">Remove</button>
-        </div>
-    </script>
 
     <script>
         // JavaScript to handle searching, selecting, and adding workouts
@@ -60,9 +167,10 @@
             searchResultsDiv.innerHTML = '';
             results.forEach(workout => {
                 const workoutElement = document.createElement('div');
+                workoutElement.classList.add('result-item');
                 workoutElement.innerHTML = `
                     <span>${workout.name}</span>
-                    <button onclick="addWorkout(${workout.id}, '${workout.name}')">+</button>
+                    <button onclick="addWorkout(${workout.id}, '${workout.name}')">Add</button>
                 `;
                 searchResultsDiv.appendChild(workoutElement);
             });
@@ -70,20 +178,17 @@
 
         function addWorkout(id, name) {
             const selectedWorkoutsDiv = document.getElementById('selectedWorkouts');
-            const workoutTemplate = document.getElementById('workout-template').innerHTML;
-            const workoutHTML = workoutTemplate.replace(/{{name}}/g, name).replace(/{{id}}/g, id);
-            selectedWorkoutsDiv.insertAdjacentHTML('beforeend', workoutHTML);
+            const workoutElement = document.createElement('div');
+            workoutElement.classList.add('result-item');
+            workoutElement.innerHTML = `
+                <span>${name}</span>
+                <input type="number" placeholder="Weight (lbs)">
+                <input type="number" placeholder="Sets">
+                <button onclick="this.parentElement.remove()">Remove</button>
+            `;
+            selectedWorkoutsDiv.appendChild(workoutElement);
         }
-
-        // Remove workout entry
-        document.addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-workout')) {
-                event.target.closest('.workout-entry').remove();
-            }
-        });
     </script>
-
-    {{> footer}} <!-- Includes the footer.hbs partial -->
 
 </body>
 </html>
