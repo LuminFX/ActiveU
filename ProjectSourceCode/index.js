@@ -18,8 +18,8 @@ const axios = require('axios'); // To make HTTP requests from our server. We'll 
 // ------------------------------------
 
 const dbConfig = {
-  host: 'POSTGRES_HOST', // the database server
-  port: 'POSTGRES_PORT', // the database port
+  host: process.env.POSTGRES_HOST, // the database server
+  port: process.env.POSTGRES_PORT, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
   password: process.env.POSTGRES_PASSWORD, // the password of the user account
