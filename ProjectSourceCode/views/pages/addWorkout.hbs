@@ -1,0 +1,136 @@
+<body>
+    <header style="text-align: center; background-color: #121212; padding: 20px; border-bottom: 2px solid #f1c40f;">
+        <h1 style="color: #f1c40f; font-family: Arial, sans-serif; font-size: 36px;">Add Workout</h1>
+    </header>
+
+    <main>
+        <section>
+            <!-- First Dropdown for Filter -->
+            <label for="searchBy">Search By:</label>
+            <select id="searchBy" class="dropdown">
+                <option value="" disabled selected>Select a Filter</option>
+                <option value="type">Type</option>
+                <option value="muscle">Muscle</option>
+                <option value="difficulty">Difficulty</option>
+            </select>
+
+            <!-- Second Dropdown for Options -->
+            <label for="filterOptions">Select an Option:</label>
+            <select id="filterOptions" class="dropdown" disabled>
+                <option value="" disabled selected>Options will populate here...</option>
+            </select>
+
+            <!-- Submit Button -->
+            <button id="searchButton" disabled>Search</button>
+
+            <!-- Search Results -->
+            <div id="searchResults">
+                <!-- Results will appear here -->
+            </div>
+        </section>
+    </main>
+    <script>
+        // JavaScript logic remains unchanged from the earlier example
+        const options = {
+            type: [
+                "cardio",
+                "olympic_weightlifting",
+                "plyometrics",
+                "powerlifting",
+                "strength",
+                "stretching",
+                "strongman",
+            ],
+            muscle: [
+                "abdominals",
+                "abductors",
+                "adductors",
+                "biceps",
+                "calves",
+                "chest",
+                "forearms",
+                "glutes",
+                "hamstrings",
+                "lats",
+                "lower_back",
+                "middle_back",
+                "neck",
+                "quadriceps",
+                "traps",
+                "triceps",
+            ],
+            difficulty: ["beginner", "intermediate", "expert"],
+        };
+
+        const searchByDropdown = document.getElementById("searchBy");
+        const filterOptionsDropdown = document.getElementById("filterOptions");
+        const searchButton = document.getElementById("searchButton");
+        const searchResultsDiv = document.getElementById("searchResults");
+
+        searchByDropdown.addEventListener("change", function () {
+            const selectedFilter = this.value;
+
+            if (!selectedFilter) {
+                filterOptionsDropdown.innerHTML =
+                    '<option value="" disabled selected>No options available.</option>';
+                filterOptionsDropdown.disabled = true;
+                searchButton.disabled = true;
+                return;
+            }
+
+            const selectedOptions = options[selectedFilter] || [];
+            filterOptionsDropdown.innerHTML =
+                '<option value="" disabled selected>Select an option</option>';
+            selectedOptions.forEach((option) => {
+                const optionElement = document.createElement("option");
+                optionElement.value = option;
+                optionElement.textContent = option;
+                filterOptionsDropdown.appendChild(optionElement);
+            });
+
+            filterOptionsDropdown.disabled = false;
+        });
+
+        filterOptionsDropdown.addEventListener("change", function () {
+            searchButton.disabled = !this.value;
+        });
+
+        searchButton.addEventListener("click", async function () {
+            const filterType = searchByDropdown.value;
+            const filterValue = filterOptionsDropdown.value;
+
+            if (!filterType || !filterValue) {
+                alert("Please select a filter and an option.");
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `/api/workouts?${filterType}=${encodeURIComponent(filterValue)}`
+                );
+                const results = await response.json();
+
+                searchResultsDiv.innerHTML = "";
+                if (results.length === 0) {
+                    searchResultsDiv.innerHTML = "<p>No results found.</p>";
+                    return;
+                }
+
+                results.forEach((workout) => {
+                    const workoutElement = document.createElement("div");
+                    workoutElement.innerHTML = `
+                        <h3>${workout.name}</h3>
+                        <p><strong>Muscle:</strong> ${workout.muscle}</p>
+                        <p><strong>Type:</strong> ${workout.type}</p>
+                        <p><strong>Difficulty:</strong> ${workout.difficulty}</p>
+                    `;
+                    searchResultsDiv.appendChild(workoutElement);
+                });
+            } catch (error) {
+                console.error("Error fetching workouts:", error);
+                searchResultsDiv.innerHTML =
+                    "<p>Failed to fetch workouts. Please try again later.</p>";
+            }
+        });
+    </script>
+</body>

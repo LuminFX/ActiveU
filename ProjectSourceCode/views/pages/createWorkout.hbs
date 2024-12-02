@@ -1,0 +1,138 @@
+<body>
+    <header style="text-align: center; background-color: #121212; padding: 20px; border-bottom: 2px solid #f1c40f;">
+        <h1 style="color: #f1c40f; font-family: Arial, sans-serif; font-size: 36px;">Create Workout</h1>
+    </header>
+
+    <div class="timer-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; background-color: #121212;">
+        <div class="timer-display" id="timer" style="
+            font-size: 80px;
+            font-weight: bold;
+            color: #f1c40f;
+            background-color: #1e1e1e;
+            padding: 20px 40px;
+            border: 4px solid #f1c40f;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        ">00:00:00</div>
+        <div class="timer-buttons" style="display: flex; gap: 20px;">
+            <button id="startButton" style="
+                font-size: 18px;
+                padding: 10px 20px;
+                color: #121212;
+                background-color: #f1c40f;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">Start</button>
+            <button id="pauseButton" style="
+                font-size: 18px;
+                padding: 10px 20px;
+                color: #121212;
+                background-color: #f1c40f;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">Pause</button>
+            <button id="stopButton" style="
+                font-size: 18px;
+                padding: 10px 20px;
+                color: #121212;
+                background-color: #f1c40f;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">Stop</button>
+        </div>
+    </div>
+
+    <div class="workout-name" style="text-align: center; margin-top: 30px;">
+        <label for="workoutName" style="color: #f1c40f; font-size: 18px; font-family: Arial, sans-serif;">Workout Name:</label>
+        <input type="text" id="workoutName" placeholder="Enter workout name" style="
+            padding: 10px;
+            font-size: 16px;
+            color: #f1c40f;
+            background-color: #1e1e1e;
+            border: 2px solid #f1c40f;
+            border-radius: 5px;
+            width: 50%;
+            margin-top: 10px;
+        ">
+    </div>
+
+    <div class="save-button" style="text-align: center; margin-top: 20px;">
+        <button id="saveWorkoutButton" style="
+            font-size: 20px;
+            padding: 10px 30px;
+            color: #121212;
+            background-color: #f1c40f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        ">Save Workout</button>
+    </div>
+
+    <script>
+        let timerInterval;
+        let elapsedTime = 0;
+        let isPaused = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerDisplay = document.getElementById('timer');
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const stopButton = document.getElementById('stopButton');
+            const saveWorkoutButton = document.getElementById('saveWorkoutButton');
+
+            startButton.addEventListener('click', () => {
+                if (!isPaused) elapsedTime = 0;
+                isPaused = false;
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    elapsedTime += 1;
+                    timerDisplay.textContent = formatTime(elapsedTime);
+                }, 1000);
+            });
+
+            pauseButton.addEventListener('click', () => {
+                isPaused = true;
+                clearInterval(timerInterval);
+            });
+
+            stopButton.addEventListener('click', () => {
+                elapsedTime = 0;
+                isPaused = false;
+                clearInterval(timerInterval);
+                timerDisplay.textContent = formatTime(elapsedTime);
+            });
+
+            saveWorkoutButton.addEventListener('click', () => {
+                const workoutName = document.getElementById('workoutName').value;
+                if (!workoutName.trim()) {
+                    alert('Please enter a workout name.');
+                    return;
+                }
+
+                const workoutData = {
+                    name: workoutName,
+                    duration: formatTime(elapsedTime),
+                };
+
+                console.log('Saving workout:', workoutData);
+                alert('Workout saved successfully!');
+            });
+        });
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+    </script>
+</body>
+
