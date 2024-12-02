@@ -22,7 +22,8 @@ const dbConfig = {
   port: 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
-  password: process.env.POSTGRES_PASSWORD, // the password of the user account
+  password: process.env.POSTGRES_PASSWORD,// the password of the user account
+  api_key: process.env.API_KEY
 };
 
 const db = pgp(dbConfig);
@@ -308,21 +309,54 @@ app.get('/genpassword/:password', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
-app.get('/api', async (req, res) => {
+
+app.get('/api/workouts', async (req, res) => {
+  const { difficulty, muscle, type } = req.query;
+
+  console.log("Received query parameters:", { difficulty, muscle, type });
+
   try {
-      // Make the API call using Axios
-      const response = await axios.get("https://api.api-ninjas.com/v1/exercises", {
-          headers: { 'X-Api-Key': process.env.API_KEY},
+      // Ensure one of the parameters is provided
+      // if (!difficulty && !muscle && !type) {
+      //     return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
+      // }
+
+      // Determine which filter is being used
+      let filter = '';
+      let value = '';
+
+      if (difficulty) {
+          filter = 'difficulty';
+          value = difficulty;
+      } else if (muscle) {
+          filter = 'muscle';
+          value = muscle;
+      } else if (type) {
+          filter = 'type';
+          value = type;
+      }
+
+      // Construct the API URL
+      // const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
+      api_key1 = "i3dR1AXd4JMlSzu5ERBYvw==sAAVBczH1I0Vut5X";
+      const apiUrl = `https://api.api-ninjas.com/v1/exercises?muscle=chest`;
+      console.log(`Fetching from API: ${apiUrl}`);
+
+      // Make the API request
+      const response = await axios.get(apiUrl, {
+          headers: { 'X-Api-Key': api_key1 },
       });
-      // Get the first trivia result
-      const exercises = response.data[0];
-      // Return the trivia to the client
-      res.json(exercises);
+
+      // Return the API response to the client
+      res.json(response);
   } catch (error) {
-      console.error('Error fetching exercises:', error.message);
-      res.status(500).json({ error: 'Failed to fetch exercises' });
+      console.error("Error in API call:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
+
+
+
 // ------------------------------------
 //             Start Server
 // ------------------------------------
