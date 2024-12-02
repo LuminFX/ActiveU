@@ -362,6 +362,7 @@ app.post('/login', async (req, res) => {
 
     //compare the provided password with the hashed password in the database
     const match = await bcrypt.compare(password, user.password);
+    console.log(password);
 
     //if password does not match render login page with error message
     if (!match) {
@@ -511,8 +512,24 @@ app.get('/api/workouts', async (req, res) => {
   }
 });
 
+app.get('/profile', async(req, res)=>{
+  const username = req.query.username;
+  console.log(username, {username});
+  
+  const acceptedFriendsQuery = `
+  SELECT 
+    CASE 
+      WHEN user1 = $1 THEN user2 
+      ELSE user1 
+    END AS username
+  FROM friendships
+  WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+`;
 
-
+  const friends = db.any(acceptedFriendsQuery, [username]);
+  console.log(friends);
+  res.render('pages/viewFriends', {username, friends});
+})
 // ------------------------------------
 //             Start Server
 // ------------------------------------

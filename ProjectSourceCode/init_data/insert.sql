@@ -15,6 +15,16 @@ VALUES
     'Tyler',
     'tyler@gmail.com',
     '$2a$10$9aCjnslkifLvo.wmJKkeIOT4HYfvECOuJFdzPBqhnOcPgXbAqSR.e'
+  ),
+  (
+    'Sarthak',
+    'paithankarsarthak@gmail.com',
+    '$2a$10$DQK2kiM6tFhhsXMQkFqksuWbfaSM6UcbemIH0qjkU8sEQuHLzdZga'
+  ),
+  (
+    'Nasir',
+    'nasir@gmail.com',
+    '$2a$10$DQK2kiM6tFhhsXMQkFqksuWbfaSM6UcbemIH0qjkU8sEQuHLzdZga'
   );
 
 INSERT INTO friendships
@@ -26,7 +36,27 @@ VALUES
     'accepted'
   ),
   (
-    'Tyler',
+    'admin',
     'Jared',
     'pending'
+  ),
+  (
+    'admin',
+    'Sarthak',
+    'accepted'
+  ),
+  (
+    'admin',
+    'Nasir',
+    'accepted'
+  ),
+  (
+    'Tyler',
+    'Nasir',
+    'accepted'
+  ),
+  (
+    'Tyler',
+    'Sarthak',
+    'accepted'
   );
