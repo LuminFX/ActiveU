@@ -22,6 +22,6 @@ services:
     volumes:
       - ./:/home/node/app
     # command: 'npm start' # toggle between these for test mode vs browser mode
-    command: 'npm run testandrun'
+    command: 'npm start'
 volumes:
   Project-ActiveU:
