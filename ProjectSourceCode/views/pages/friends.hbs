@@ -11,26 +11,27 @@
             <h2 class="mb-4">Friends</h2>
           </div>
           
-          <div class="mb-4"> 
+          <div class="mb-4">
             <h4>Add a Friend</h4>
-            <form action="" method="post">
+            <form id="add-friend-form">
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Enter friend's username" required>
+                <input type="text" id="friend-username" class="form-control" placeholder="Enter friend's username" required>
                 <button class="btn btn-dark border border-warning" type="submit">Add Friend</button>
               </div>
             </form>
           </div>
+
           
           <div class="mb-5">
             <h4>Incoming Friend Requests</h4>
-            <div id="friend-requests">
+            <div id="incoming-friend-requests">
               <ul class="list-group">
                 {{#each pending}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
-                      <button class="btn btn-success btn-sm">Approve</button>
-                      <button class="btn btn-danger btn-sm">Decline</button>
+                      <button class="btn btn-success btn-sm" data-username="{{this.username}}" data-action="approve">Approve</button>
+                      <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="decline">Decline</button>
                     </div>
                   </li>
                 {{else}}
@@ -44,14 +45,13 @@
 
           <div class="mb-5">
             <h4>Sent Friend Requests</h4>
-            <div id="friend-requests">
+            <div id="sent-friend-requests">
               <ul class="list-group">
                 {{#each sent}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
-                      <button class="btn btn-success btn-sm">Approve</button>
-                      <button class="btn btn-danger btn-sm">Decline</button>
+                      <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="cancel">Cancel</button>
                     </div>
                   </li>
                 {{else}}
@@ -70,7 +70,7 @@
               {{#each friends}}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
-                  <button class="btn btn-danger btn-sm" onclick="removeFriend('{{this.username}}')">Remove</button>
+                  <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
                 </li>
               {{/each}}
             </ul>
@@ -80,3 +80,120 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const incomingFriendRequestsContainer = document.getElementById("incoming-friend-requests");
+    const sentFriendRequestsContainer = document.getElementById("sent-friend-requests");
+    const friendsContainer = document.getElementById("friends-list");
+    const addFriendForm = document.getElementById("add-friend-form");
+
+    incomingFriendRequestsContainer.addEventListener("click", async (event) => {
+      const button = event.target;
+
+      if (button.tagName === "BUTTON" && button.dataset.action) {
+        const username = button.dataset.username;
+        const action = button.dataset.action;
+
+        try {
+          const response = await fetch(`/friend-request/${action}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username }),
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error(`Failed to ${action} friend request.`);
+          }
+        } catch (error) {
+          console.error("Error processing friend request:", error);
+        }
+      }
+    });
+
+    // Handle sent friend requests (cancel)
+    sentFriendRequestsContainer.addEventListener("click", async (event) => {
+      const button = event.target;
+
+      if (button.tagName === "BUTTON" && button.dataset.action === "cancel") {
+        const username = button.dataset.username;
+
+        try {
+          const response = await fetch(`/friend-request/cancel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username }),
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error("Failed to cancel friend request.");
+          }
+        } catch (error) {
+          console.error("Error processing cancel request:", error);
+        }
+      }
+    });
+
+    friendsContainer.addEventListener("click", async (event) => {
+      const button = event.target;
+
+      if (button.tagName === "BUTTON" && button.dataset.action) {
+        const username = button.dataset.username;
+        const action = button.dataset.action;
+
+        try {
+          const response = await fetch(`/friend-request/${action}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username }),
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error(`Failed to ${action} friend`);
+          }
+        } catch (error) {
+          console.error("Error removing friend:", error);
+        }
+      }
+    });
+
+    addFriendForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById("friend-username").value;
+
+      try {
+        const response = await fetch(`/friend-request/send`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username }),
+        });
+
+        if (response.ok) {
+          location.reload();
+        } else {
+          console.error("Failed to send friend request.");
+        }
+      } catch (error) {
+        console.error("Error sending friend request:", error);
+      }
+    });
+  });
+</script>
+
+
+

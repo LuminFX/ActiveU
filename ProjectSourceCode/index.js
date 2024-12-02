@@ -193,6 +193,149 @@ app.get('/account', auth, async (req, res) => { // get basic account information
 
 // Post Requests
 
+app.post('/friend-request/approve', async (req, res) => {
+  const { username } = req.body;
+  const currentUser = req.session.user.username;
+
+  try {
+    await db.query(
+      `
+      UPDATE friendships
+      SET status = 'accepted'
+      WHERE user1 = $1 AND user2 = $2
+      `,
+      [username, currentUser]
+    );
+
+    res.redirect('/friends');
+    
+  } catch (error) {
+    console.error('Error approving friend request:', error);
+
+    res.redirect('/friends');
+    
+  }
+});
+
+app.post('/friend-request/decline', async (req, res) => {
+  const { username } = req.body;
+  const currentUser = req.session.user.username;
+
+  try {
+    await db.query(
+      `
+      DELETE FROM friendships
+      WHERE user1 = $1 AND user2 = $2
+      `,
+      [username, currentUser]
+    );
+
+    res.redirect('/friends');
+
+  } catch (error) {
+    console.error('Error declining friend request:', error);
+    res.redirect('/friends');
+  }
+});
+
+app.post('/friend-request/cancel', async (req, res) => {
+  const { username } = req.body; 
+  const currentUser = req.session.user.username; 
+
+  try {
+    await db.query(
+      `
+      DELETE FROM friendships
+      WHERE user1 = $1 AND user2 = $2 AND status = 'pending'
+      `,
+      [currentUser, username]
+    );
+
+    res.redirect('/friends');
+  } catch (error) {
+    console.error('Error canceling friend request:', error);
+
+    res.redirect('/friends');
+  }
+});
+
+app.post('/friend-request/remove', async (req, res) => {
+  const { username } = req.body;
+  const currentUser = req.session.user.username;
+
+  try {
+    await db.query(
+      `
+      DELETE FROM friendships
+      WHERE (user1 = $1 AND user2 = $2) OR (user1 = $2 AND user2 = $1)
+      `,
+      [currentUser, username]
+    );
+
+    res.redirect('/friends');
+  } catch (error) {
+    console.error('Error removing friend:', error);
+    res.redirect('/friends');
+  }
+});
+
+app.post('/friend-request/send', async (req, res) => {
+  const { username } = req.body;
+  const currentUser = req.session.user.username;
+
+  if (!username) {
+    req.session.message = 'Please enter a valid username.';
+    req.session.error = true;
+    return req.session.save(() => res.redirect('/friends'));
+  }
+
+  try {
+    const userExists = await db.oneOrNone(
+      `SELECT username FROM users WHERE username = $1`,
+      [username]
+    );
+
+    if (!userExists) {
+      req.session.message = `User ${username} does not exist.`;
+      req.session.error = true;
+      return req.session.save(() => res.redirect('/friends'));
+    }
+
+    const existingRequest = await db.oneOrNone(
+      `
+      SELECT * FROM friendships
+      WHERE (user1 = $1 AND user2 = $2) OR (user1 = $2 AND user2 = $1)
+      `,
+      [currentUser, username]
+    );
+
+    if (existingRequest) {
+      req.session.message = `A friend request or friendship already exists with ${username}.`;
+      req.session.error = true;
+      return req.session.save(() => res.redirect('/friends'));
+    }
+
+    await db.query(
+      `
+      INSERT INTO friendships (user1, user2, status)
+      VALUES ($1, $2, 'pending')
+      `,
+      [currentUser, username]
+    );
+
+    req.session.message = `Friend request sent to ${username}.`;
+    req.session.error = false;
+    req.session.save(() => res.redirect('/friends'));
+  } catch (error) {
+    console.error('Error sending friend request:', error);
+
+    req.session.message = 'An error occurred while sending the friend request.';
+    req.session.error = true;
+    req.session.save(() => res.redirect('/friends'));
+  }
+});
+
+
 app.post('/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
   try {
