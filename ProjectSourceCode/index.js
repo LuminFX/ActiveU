@@ -134,22 +134,35 @@ app.get('/friends', auth, async (req, res) => {
       WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
     `;
 
-    const pendingFriendsQuery = `
+      const pendingFriendsQuery = `
       SELECT 
         CASE 
           WHEN user1 = $1 THEN user2 
           ELSE user1 
         END AS username
       FROM friendships
-      WHERE (user2 = $1) AND status = 'pending';
+      WHERE (user2 = $1) AND status = 'pending'
+    `;
+
+    const sentFriendsQuery = `
+      SELECT 
+        CASE 
+          WHEN user1 = $1 THEN user2 
+          ELSE user1 
+        END AS username
+      FROM friendships
+      WHERE (user1 = $1) AND status = 'pending'
     `;
 
     const friends = await db.any(acceptedFriendsQuery, [username]);
     const pending = await db.any(pendingFriendsQuery, [username]);
+    const sent = await db.any(sentFriendsQuery, [username]);
+
 
     res.render('pages/friends', { 
       friends, 
-      pending
+      pending,
+      sent
     }); 
   } catch (error) {
     console.error('Error fetching friends:', error);

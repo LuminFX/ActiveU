@@ -22,10 +22,31 @@
           </div>
           
           <div class="mb-5">
-            <h4>Pending Friend Requests</h4>
+            <h4>Incoming Friend Requests</h4>
             <div id="friend-requests">
               <ul class="list-group">
                 {{#each pending}}
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                    <div>
+                      <button class="btn btn-success btn-sm">Approve</button>
+                      <button class="btn btn-danger btn-sm">Decline</button>
+                    </div>
+                  </li>
+                {{else}}
+                  <div class="alert alert-info" role="alert">
+                    No pending friend requests.
+                  </div>
+                {{/each}}
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <h4>Sent Friend Requests</h4>
+            <div id="friend-requests">
+              <ul class="list-group">
+                {{#each sent}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
