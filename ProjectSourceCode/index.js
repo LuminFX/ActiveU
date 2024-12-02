@@ -141,7 +141,7 @@ app.get('/friends', auth, async (req, res) => {
           ELSE user1 
         END AS username
       FROM friendships
-      WHERE (user1 = $1 OR user2 = $1) AND status = 'pending';
+      WHERE (user2 = $1) AND status = 'pending';
     `;
 
     const friends = await db.any(acceptedFriendsQuery, [username]);
