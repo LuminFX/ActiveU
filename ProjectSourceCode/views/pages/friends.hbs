@@ -27,7 +27,7 @@
               <ul class="list-group">
                 {{#each pending}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                    <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
                       <button class="btn btn-success btn-sm">Approve</button>
                       <button class="btn btn-danger btn-sm">Decline</button>
@@ -48,7 +48,7 @@
             <ul class="list-group">
               {{#each friends}}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                  <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                   <button class="btn btn-danger btn-sm" onclick="removeFriend('{{this.username}}')">Remove</button>
                 </li>
               {{/each}}
