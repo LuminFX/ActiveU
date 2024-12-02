@@ -1,5 +1,4 @@
 <body>
-
     <header>
         <h1>Add Workout</h1>
     </header>
@@ -38,12 +37,6 @@
         // JavaScript to handle searching, selecting, and adding workouts
         document.getElementById('searchButton').addEventListener('click', function() {
             const query = document.getElementById('workoutSearch').value;
-            // Mock search - this would call your API in a real setup
-            const mockResults = [
-                { id: 1, name: 'Bench Press' },
-                { id: 2, name: 'Squat' },
-                { id: 3, name: 'Deadlift' },
-            ];
             displaySearchResults(mockResults.filter(w => w.name.toLowerCase().includes(query.toLowerCase())));
         });
 

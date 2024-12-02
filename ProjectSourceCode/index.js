@@ -308,6 +308,21 @@ app.get('/genpassword/:password', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
+app.get('/api', async (req, res) => {
+  try {
+      // Make the API call using Axios
+      const response = await axios.get("https://api.api-ninjas.com/v1/exercises", {
+          headers: { 'X-Api-Key': process.env.API_KEY},
+      });
+      // Get the first trivia result
+      const exercises = response.data[0];
+      // Return the trivia to the client
+      res.json(exercises);
+  } catch (error) {
+      console.error('Error fetching exercises:', error.message);
+      res.status(500).json({ error: 'Failed to fetch exercises' });
+  }
+});
 // ------------------------------------
 //             Start Server
 // ------------------------------------
