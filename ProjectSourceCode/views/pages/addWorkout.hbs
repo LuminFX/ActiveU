@@ -1,71 +1,158 @@
 <body>
-    <header>
-        <h1>Add Workout</h1>
+    <header style="text-align: center; background-color: #121212; padding: 20px; border-bottom: 2px solid #f1c40f;">
+        <h1 style="color: #f1c40f; font-family: Arial, sans-serif; font-size: 36px;">Add Workout</h1>
     </header>
 
-    <section>
-        <!-- Search Bar -->
-        <input type="text" id="workoutSearch" placeholder="Search for workouts...">
-        <button id="searchButton">Search</button>
+    <main style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #121212; min-height: 100vh; color: #f1c40f; font-family: Arial, sans-serif; padding: 20px;">
+        <section style="text-align: center; width: 100%; max-width: 600px; margin-bottom: 30px;">
+            <input type="text" id="workoutSearch" placeholder="Search for workouts..." style="
+                width: 70%;
+                padding: 10px;
+                font-size: 16px;
+                border: 2px solid #f1c40f;
+                border-radius: 5px 0 0 5px;
+                background-color: #1e1e1e;
+                color: #f1c40f;
+                outline: none;
+            ">
+            <button id="searchButton" style="
+                padding: 10px 20px;
+                font-size: 16px;
+                border: none;
+                border-radius: 0 5px 5px 0;
+                background-color: #f1c40f;
+                color: #121212;
+                cursor: pointer;
+            ">Search</button>
+        </section>
 
-        <!-- Search Results -->
-        <div id="searchResults">
-            <!-- Workout results from search will appear here -->
-        </div>
-    </section>
+        <section id="searchResults" style="
+            width: 100%;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        ">
+            <h2 style="color: #f1c40f; font-size: 24px; margin-bottom: 20px; text-align: center;">Search Results</h2>
+            <div id="searchResultsList" style="text-align: center;">
+                <!-- Search results will appear here -->
+            </div>
+        </section>
 
-    <section>
-        <h2>Selected Workouts</h2>
-        <div id="selectedWorkouts">
-            <!-- Selected workouts to log will appear here -->
-        </div>
-    </section>
+        <section id="selectedWorkouts" style="
+            width: 100%;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        ">
+            <h2 style="color: #f1c40f; font-size: 24px; margin-bottom: 20px; text-align: center;">Selected Workouts</h2>
+            <div id="selectedWorkoutsList">
+                <!-- Selected workouts will appear here -->
+            </div>
+        </section>
+    </main>
 
-    <!-- Template for a Workout Entry -->
     <script id="workout-template" type="text/x-handlebars-template">
-        <div class="workout-entry">
-            <h3>{{name}}</h3>
-            <label>Weight (lbs):</label>
-            <input type="number" placeholder="Weight" class="workout-weight" data-id="{{id}}">
-            <label>Sets:</label>
-            <input type="number" placeholder="Sets" class="workout-sets" data-id="{{id}}">
-            <button class="remove-workout" data-id="{{id}}">Remove</button>
+        <div class="workout-entry" style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1c40f;
+        ">
+            <h3 style="color: #f1c40f; font-size: 18px;">{{name}}</h3>
+            <div style="display: flex; gap: 10px;">
+                <label style="color: #f1c40f;">Weight (lbs):</label>
+                <input type="number" placeholder="Weight" class="workout-weight" data-id="{{id}}" style="
+                    width: 80px;
+                    padding: 5px;
+                    font-size: 14px;
+                    color: #f1c40f;
+                    background-color: #1e1e1e;
+                    border: 2px solid #f1c40f;
+                    border-radius: 5px;
+                    text-align: center;
+                ">
+                <label style="color: #f1c40f;">Sets:</label>
+                <input type="number" placeholder="Sets" class="workout-sets" data-id="{{id}}" style="
+                    width: 80px;
+                    padding: 5px;
+                    font-size: 14px;
+                    color: #f1c40f;
+                    background-color: #1e1e1e;
+                    border: 2px solid #f1c40f;
+                    border-radius: 5px;
+                    text-align: center;
+                ">
+                <button class="remove-workout" data-id="{{id}}" style="
+                    padding: 5px 10px;
+                    font-size: 14px;
+                    background-color: #f1c40f;
+                    color: #121212;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">Remove</button>
+            </div>
         </div>
     </script>
 
     <script>
-        // JavaScript to handle searching, selecting, and adding workouts
-        document.getElementById('searchButton').addEventListener('click', function() {
+        const mockResults = [
+            { id: 1, name: 'Bench Press' },
+            { id: 2, name: 'Deadlift' },
+            { id: 3, name: 'Squat' },
+        ];
+
+        document.getElementById('searchButton').addEventListener('click', function () {
             const query = document.getElementById('workoutSearch').value;
             displaySearchResults(mockResults.filter(w => w.name.toLowerCase().includes(query.toLowerCase())));
         });
 
         function displaySearchResults(results) {
-            const searchResultsDiv = document.getElementById('searchResults');
+            const searchResultsDiv = document.getElementById('searchResultsList');
             searchResultsDiv.innerHTML = '';
             results.forEach(workout => {
                 const workoutElement = document.createElement('div');
+                workoutElement.style = `
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 10px;
+                    border-bottom: 1px solid #f1c40f;
+                `;
                 workoutElement.innerHTML = `
-                    <span>${workout.name}</span>
-                    <button onclick="addWorkout(${workout.id}, '${workout.name}')">+</button>
+                    <span style="color: #f1c40f;">${workout.name}</span>
+                    <button onclick="addWorkout(${workout.id}, '${workout.name}')" style="
+                        padding: 5px 10px;
+                        font-size: 14px;
+                        background-color: #f1c40f;
+                        color: #121212;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    ">+</button>
                 `;
                 searchResultsDiv.appendChild(workoutElement);
             });
         }
 
         function addWorkout(id, name) {
-            const selectedWorkoutsDiv = document.getElementById('selectedWorkouts');
+            const selectedWorkoutsDiv = document.getElementById('selectedWorkoutsList');
             const workoutTemplate = document.getElementById('workout-template').innerHTML;
             const workoutHTML = workoutTemplate.replace(/{{name}}/g, name).replace(/{{id}}/g, id);
             selectedWorkoutsDiv.insertAdjacentHTML('beforeend', workoutHTML);
         }
 
-        // Remove workout entry
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             if (event.target.classList.contains('remove-workout')) {
                 event.target.closest('.workout-entry').remove();
             }
         });
     </script>
 </body>
-
