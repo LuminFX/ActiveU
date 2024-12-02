@@ -91,6 +91,15 @@ app.get('/', (req, res) => { // temporary route that just shows a message
   res.redirect('/login'); // Redirect to the /login route
 });
 
+app.get('/createWorkout', auth, (req, res) => {
+  res.render('pages/createWorkout'); // Render createWorkout.hbs
+});
+
+// Route for Add Workout page
+app.get('/addWorkout', auth, (req, res) => {
+  res.render('pages/addWorkout'); // Render addWorkout.hbs
+});
+
 app.get('/login', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
@@ -299,7 +308,6 @@ app.get('/genpassword/:password', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
-
 // ------------------------------------
 //             Start Server
 // ------------------------------------

@@ -1,40 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create Workout</title>
-    <style>
-        .timer-container {
-            text-align: center;
-            margin: 50px 0;
-        }
-        .timer-display {
-            font-size: 48px;
-            margin: 20px 0;
-        }
-        .timer-buttons button {
-            font-size: 18px;
-            margin: 5px;
-        }
-        .workout-name {
-            margin: 20px;
-            text-align: center;
-        }
-    </style>
-</head>
 <body>
-
-    {{> nav}} <!-- Include the navbar -->
-
     <header>
         <h1>Create Workout</h1>
     </header>
 
     <div class="timer-container">
-        <!-- Timer Display -->
         <div class="timer-display" id="timer">00:00:00</div>
-
-        <!-- Timer Buttons -->
         <div class="timer-buttons">
             <button id="startButton">Start</button>
             <button id="pauseButton">Pause</button>
@@ -42,88 +12,66 @@
         </div>
     </div>
 
-    <!-- Workout Name Input -->
     <div class="workout-name">
         <label for="workoutName">Workout Name:</label>
         <input type="text" id="workoutName" placeholder="Enter workout name">
     </div>
 
-    <!-- Save Button -->
     <div class="save-button" style="text-align: center;">
         <button id="saveWorkoutButton">Save Workout</button>
     </div>
 
-    {{> footer}} <!-- Include the footer -->
-
     <script>
-        // Timer Variables
         let timerInterval;
         let elapsedTime = 0;
         let isPaused = false;
 
-        // Timer Elements
-        const timerDisplay = document.getElementById('timer');
-        const startButton = document.getElementById('startButton');
-        const pauseButton = document.getElementById('pauseButton');
-        const stopButton = document.getElementById('stopButton');
-        const saveWorkoutButton = document.getElementById('saveWorkoutButton');
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerDisplay = document.getElementById('timer');
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const stopButton = document.getElementById('stopButton');
+            const saveWorkoutButton = document.getElementById('saveWorkoutButton');
 
-        // Start Timer
-        startButton.addEventListener('click', () => {
-            if (!isPaused) elapsedTime = 0; // Reset if not paused
-            isPaused = false;
-            clearInterval(timerInterval); // Clear any existing interval
-            timerInterval = setInterval(() => {
-                elapsedTime += 1;
+            startButton.addEventListener('click', () => {
+                if (!isPaused) elapsedTime = 0;
+                isPaused = false;
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    elapsedTime += 1;
+                    timerDisplay.textContent = formatTime(elapsedTime);
+                }, 1000);
+            });
+
+            pauseButton.addEventListener('click', () => {
+                isPaused = true;
+                clearInterval(timerInterval);
+            });
+
+            stopButton.addEventListener('click', () => {
+                elapsedTime = 0;
+                isPaused = false;
+                clearInterval(timerInterval);
                 timerDisplay.textContent = formatTime(elapsedTime);
-            }, 1000);
+            });
+
+            saveWorkoutButton.addEventListener('click', () => {
+                const workoutName = document.getElementById('workoutName').value;
+                if (!workoutName.trim()) {
+                    alert('Please enter a workout name.');
+                    return;
+                }
+
+                const workoutData = {
+                    name: workoutName,
+                    duration: formatTime(elapsedTime),
+                };
+
+                console.log('Saving workout:', workoutData);
+                alert('Workout saved successfully!');
+            });
         });
 
-        // Pause Timer
-        pauseButton.addEventListener('click', () => {
-            isPaused = true;
-            clearInterval(timerInterval);
-        });
-
-        // Stop Timer
-        stopButton.addEventListener('click', () => {
-            elapsedTime = 0;
-            isPaused = false;
-            clearInterval(timerInterval);
-            timerDisplay.textContent = formatTime(elapsedTime);
-        });
-
-        // Save Workout
-        saveWorkoutButton.addEventListener('click', () => {
-            const workoutName = document.getElementById('workoutName').value;
-            if (!workoutName.trim()) {
-                alert('Please enter a workout name.');
-                return;
-            }
-
-            // Mock save to database
-            const workoutData = {
-                name: workoutName,
-                duration: formatTime(elapsedTime),
-            };
-
-            console.log('Saving workout:', workoutData);
-
-            // In a real app, send this to your backend:
-            // fetch('/api/workouts', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify(workoutData),
-            // }).then(response => {
-            //     if (response.ok) alert('Workout saved successfully!');
-            // });
-
-            alert('Workout saved successfully!');
-        });
-
-        // Format Time Helper
         function formatTime(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
@@ -131,11 +79,8 @@
             return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
         }
 
-        // Zero Padding Helper
         function pad(num) {
             return num.toString().padStart(2, '0');
         }
     </script>
-
 </body>
-</html>
