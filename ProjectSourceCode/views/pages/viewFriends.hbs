@@ -9,12 +9,25 @@
                 <div class="col-lg-2">
                   <img src="../images/logo.png" class="rounded-circle border border-warning" style="width: 185px;" alt="logo" alt="logo">
                 </div>
-                <div class="col-lg-2 text-center">
-                     <h4 class="mt-1 mb-5 pb-1">{{this.username}}</h4>
-                </div>
-                <div class="text-right">
-                     <h4 class="mt-1 mb-5 pb-1">Friends</h4>
-                </div>
+                <h4>Account Information</h4>
+                <ul class="list-group">
+                    <li class="list-group-item">Username: {{username}}</li>
+                    <li class="list-group-item">Email: {{email}}</li>
+                </ul>
+                <h4>Friends</h4>
+                <ul class="list-group">
+                    {{#each friends}}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                            {{#if isMutual}}
+                                <button class="btn btn-danger btn-sm" onclick="removeFriend('{{this.username}}')">Remove</button>
+                            {{/if}}
+                            {{#if isPotential}}
+                                <button class="btn btn-success btn-sm" onclick="addFriend('{{this.username}}')">ADD</button>
+                            {{/if}}
+                        </li>
+                    {{/each}}
+                </ul>
               </div>
             </div>
             </div>

@@ -36,9 +36,9 @@ VALUES
     'accepted'
   ),
   (
-    'admin',
+    'Tyler',
     'Jared',
-    'pending'
+    'accepted'
   ),
   (
     'admin',
@@ -60,3 +60,4 @@ VALUES
     'Sarthak',
     'accepted'
   );
+  
