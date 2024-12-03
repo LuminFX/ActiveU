@@ -1,4 +1,4 @@
-// ------------------------------------
+// ------------------------------------s
 //         Import Dependencies
 // ------------------------------------
 
@@ -48,6 +48,7 @@ const hbs = handlebars.create({
 });
 // Register `hbs` as our view engine using its bound `engine()` function.
 
+
 app.use(express.static(path.join(__dirname, 'views'))); //This line fixes the images for some reason.
 
 app.engine('hbs', hbs.engine);
@@ -68,6 +69,7 @@ app.use(
     extended: true,
   })
 );
+
 
 // ------------------------------------
 //             API Routes
@@ -205,7 +207,6 @@ app.post('/login', async (req, res) => {
 
     //compare the provided password with the hashed password in the database
     const match = await bcrypt.compare(password, user.password);
-    console.log(password);
 
     //if password does not match render login page with error message
     if (!match) {
@@ -325,23 +326,46 @@ app.get('/api', async (req, res) => {
   }
 });
 
-app.get('/profile', async(req, res)=>{
-  const username = req.query.username;
-  console.log(username, {username});
+app.get('/profile', auth, async(req, res)=>{
   
-  const acceptedFriendsQuery = `
-  SELECT 
-    CASE 
-      WHEN user1 = $1 THEN user2 
-      ELSE user1 
-    END AS username
-  FROM friendships
-  WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
-`;
 
-  const friends = db.any(acceptedFriendsQuery, [username]);
-  console.log(friends);
-  res.render('pages/viewFriends', {username, friends});
+  const actual_user = req.session.user.username;
+  const username = req.query.username;
+
+  const email_query = `
+    SELECT email
+    FROM users
+    WHERE ($1 = users.username);
+  `;
+  const emailResult = await db.any(email_query, [username]);
+  const email = emailResult[0].email;
+
+  const acceptedFriendsQuery = `
+    SELECT 
+      CASE 
+        WHEN user1 = $1 THEN user2 
+        ELSE user1 
+      END AS username
+    FROM friendships
+    WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+  `;
+
+  const friends = await db.any(acceptedFriendsQuery, [username]);
+  const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
+  
+  friends.forEach(element => {
+    if(element.username == actual_user){
+      return;
+    }else if (user_friends.some((item) => item.username == element.username)) {
+      element.isMutual = true; 
+      element.isPotential = false;
+    } else {
+      element.isMutual = false; 
+      element.isPotential = true; 
+    }
+  });
+
+  res.render('pages/viewFriends', {username, friends, email});
 })
 // ------------------------------------
 //             Start Server
