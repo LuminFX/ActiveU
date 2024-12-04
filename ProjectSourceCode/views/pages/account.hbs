@@ -23,17 +23,17 @@
                     {{!-- add table headings here --}}
                   </tr>
                 </thead>
-                <tbody>
-                  {{#each workouts}}
-                  <tr>
-                    {{!-- add workout data here --}}
-                  </tr>
-                  {{else}}
-                  <tr>
-                    <td colspan="4" class="text-center">No workouts. (－.－)...zzz</td>
-                  </tr>
-                  {{/each}}
-                </tbody>
+                <ul class="list-group">
+                    {{#each workout}}
+                      <div class="list-group-item d-flex justify-content-between" id="list-tab" role="tablist">
+                          {{this.workout_name}}, {{this.duration}}, {{this.workout_date}}
+                      </div>
+                    {{else}}
+                      <tr>
+                        <td colspan="4" class="text-center">No workouts. (－.－)...zzz</td>
+                      </tr>
+                    {{/each}}
+                </ul>
               </table>
             </div>
 

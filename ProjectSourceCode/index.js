@@ -196,8 +196,17 @@ app.get('/account', auth, async (req, res) => { // get basic account information
       WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
     `;
     const friends = await db.any(acceptedFriendsQuery, [username]);
+
+    const workout_query = `
+      SELECT workout_name, duration, DATE(workout_date) AS workout_date
+      FROM workouts
+      WHERE ($1 = workouts.username);
+    `;
+
+    const workout = await db.any(workout_query, [username]); 
+    console.log(workout);
     if (userData) {
-      res.render('pages/account', {userData, friends});
+      res.render('pages/account', {userData, friends, workout});
     } else {
       res.status(404).send('User not found');
     }
@@ -242,6 +251,13 @@ app.get('/profile', auth, async(req, res)=>{
   const friends = await db.any(acceptedFriendsQuery, [username]);
   const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
   
+  const workout_query = `
+      SELECT workout_name, duration, DATE(workout_date) AS workout_date
+      FROM workouts
+      WHERE ($1 = workouts.username);
+    `;
+
+  const workout = await db.any(workout_query, [username]); 
   friends.forEach(element => {
     if(element.username == actual_user){
       return;
@@ -253,7 +269,7 @@ app.get('/profile', auth, async(req, res)=>{
       element.isPotential = true; 
     }
   });
-  res.render('pages/viewFriends', {username, friends, email});
+  res.render('pages/viewFriends', {username, friends, email, workout});
 });
 
 // Post Requests
