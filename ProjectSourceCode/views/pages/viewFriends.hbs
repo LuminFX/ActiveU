@@ -57,7 +57,12 @@
           });
 
           if (response.ok) {
-            location.reload();
+            if(action == 'send'){
+              location.reload();
+              alert(`Sent friend request to ${username}`);
+            }else{
+              alert(`Request Failed`);
+            }
           } else {
             console.error(`Failed to ${action} friend`);
           }

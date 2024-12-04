@@ -98,15 +98,6 @@ app.get('/', (req, res) => { // temporary route that just shows a message
   res.redirect('/login'); // Redirect to the /login route
 });
 
-app.get('/createWorkout', auth, (req, res) => {
-  res.render('pages/createWorkout'); // Render createWorkout.hbs
-});
-
-// Route for Add Workout page
-app.get('/addWorkout', auth, (req, res) => {
-  res.render('pages/addWorkout'); // Render addWorkout.hbs
-});
-
 app.get('/login', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
@@ -205,7 +196,6 @@ app.get('/account', auth, async (req, res) => { // get basic account information
       WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
     `;
     const friends = await db.any(acceptedFriendsQuery, [username]);
-    console.log(friends);
     if (userData) {
       res.render('pages/account', {userData, friends});
     } else {
@@ -216,6 +206,16 @@ app.get('/account', auth, async (req, res) => { // get basic account information
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.get('/createWorkout', auth, (req, res) => {
+  res.render('pages/createWorkout'); // Render createWorkout.hbs
+});
+
+// Route for Add Workout page
+app.get('/logWorkout', auth, (req, res) => {
+  res.render('pages/logWorkout'); // Render addWorkout.hbs
+});
+
 
 app.get('/profile', auth, async(req, res)=>{
   const actual_user = req.session.user.username;
@@ -257,6 +257,25 @@ app.get('/profile', auth, async(req, res)=>{
 });
 
 // Post Requests
+
+app.post('/add-workout', async (req, res) =>{
+  const username = req.session.user.username;
+  const duration = req.body.workoutData.duration;
+  const workout_name = req.body.workoutData.name;
+  try {
+    await db.query(
+      `
+      INSERT INTO workouts(username, workout_name, duration)
+      VALUES ($1, $2, $3);
+      `,
+      [username, workout_name, duration]
+    );
+    res.redirect('/home');
+  } catch (error) {
+    console.error('Error adding Workout:', error);
+    res.redirect('/home');
+  }
+});
 
 app.post('/friend-request/approve', async (req, res) => {
   const { username } = req.body;
@@ -505,6 +524,16 @@ app.get('/debug/friends', async (req, res) => {
   }
 });
 
+app.get('/debug/add-workout', async (req, res) => {
+  try {
+    const workout = await db.any('SELECT * FROM workouts');
+    res.json(workout); // Return the data as JSON
+  } catch (error) {
+    console.error('Error fetching workouts:', error);
+    res.status(500).send('Error fetching workouts');
+  }
+});
+
 app.get('/genpassword/:password', async (req, res) => {
   try {
     const password = req.params.password;
@@ -520,6 +549,8 @@ app.get('/genpassword/:password', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
+
+
 
 app.get('/api/workouts', async (req, res) => {
   const { difficulty, muscle, type } = req.query;
