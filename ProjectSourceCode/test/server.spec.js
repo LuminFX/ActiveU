@@ -29,63 +29,63 @@ describe('Server!', () => {
 
 // ********************** PART B TEST CASES ****************************
 
-// describe('Testing Registering', () => {
+describe('Testing Registering', () => {
 
-//   // verify whether its getting properly inserted into the users table. 
-//   it('positive : /register', done => {
-//     chai
-//       .request(server)
-//       .post('/register')
-//       .send({ username: 'regTestUser', password: 'testpassword', email: 'myemail@gmail.com' })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/)
-//         done();
-//       });
-//   });
+  // verify whether its getting properly inserted into the users table. 
+  it('positive : /register', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({ username: 'regTestUser', password: 'testpassword', email: 'myemail@gmail.com' })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/)
+        done();
+      });
+  });
 
-//   // testing whether your API recongizes incorrect POSTs and responds with the appropriate error message.
-//   it('Negative : /register. Checking invalid password', done => {
-//     chai
-//       .request(server)
-//       .post('/register')
-//       .send({username: 'regTestUser', password: 'a', email: 20 })
-//       .end((err, res) => {
-//         expect(res).to.have.status(400);
-//         expect(res.body.message).to.equals('Password must be at least 5 characters long.');
-//         done();
-//       });
-//   });
-// });
+  // testing whether your API recongizes incorrect POSTs and responds with the appropriate error message.
+  it('Negative : /register. Checking invalid password', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({username: 'regTestUser', password: 'a', email: 20 })
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        expect(res.body.message).to.equals('Password must be at least 5 characters long.');
+        done();
+      });
+  });
+});
 
-// describe('Testing Login', () => {
+describe('Testing Login', () => {
 
-//   // verify whether its getting properly inserted into the users table. 
-//   it('positive : /login', done => {
-//     chai
-//       .request(server)
-//       .post('/login')
-//       .send({ usernameOrEmail: 'regTestUser', password: 'testpassword'})
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         res.should.redirectTo(/^.*127\.0\.0\.1.*\/home$/)
-//         done();
-//       });
-//   });
+  // verify whether its getting properly inserted into the users table. 
+  it('positive : /login', done => {
+    chai
+      .request(server)
+      .post('/login')
+      .send({ usernameOrEmail: 'regTestUser', password: 'testpassword'})
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        res.should.redirectTo(/^.*127\.0\.0\.1.*\/home$/)
+        done();
+      });
+  });
 
-//   // testing whether your API recongizes incorrect POSTs and responds with the appropriate error message.
-//   it('Negative : /login.', done => {
-//     chai
-//       .request(server)
-//       .post('/login')
-//       .send({ usernameOrEmail: 'regTestUser', password: 'wrongPassword' })
-//       .end((err, res) => {
-//         expect(res).to.have.status(400);
-//         expect(res.body.message).to.equals('Incorrect username or password.');
-//         done();
-//       });
-//   });
-// });
+  // testing whether your API recongizes incorrect POSTs and responds with the appropriate error message.
+  it('Negative : /login.', done => {
+    chai
+      .request(server)
+      .post('/login')
+      .send({ usernameOrEmail: 'regTestUser', password: 'wrongPassword' })
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        expect(res.body.message).to.equals('Incorrect username or password.');
+        done();
+      });
+  });
+});
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 

@@ -1,4 +1,4 @@
-// ------------------------------------s
+// ------------------------------------
 //         Import Dependencies
 // ------------------------------------
 
@@ -49,7 +49,6 @@ const hbs = handlebars.create({
 });
 // Register `hbs` as our view engine using its bound `engine()` function.
 
-
 app.use(express.static(path.join(__dirname, 'views'))); //This line fixes the images for some reason.
 
 app.engine('hbs', hbs.engine);
@@ -71,7 +70,6 @@ app.use(
   })
 );
 
-
 // ------------------------------------
 //             API Routes
 // ------------------------------------
@@ -92,15 +90,6 @@ app.get('/', (req, res) => { // temporary route that just shows a message
   // removing this temp response.
   // res.send('<h1>This is Project-ActiveU!</h1>'); 
   res.redirect('/login'); // Redirect to the /login route
-});
-
-app.get('/createWorkout', auth, (req, res) => {
-  res.render('pages/createWorkout'); // Render createWorkout.hbs
-});
-
-// Route for Add Workout page
-app.get('/addWorkout', auth, (req, res) => {
-  res.render('pages/addWorkout'); // Render addWorkout.hbs
 });
 
 app.get('/login', (req, res) => {
