@@ -81,6 +81,12 @@ const auth = (req, res, next) => {
     return res.redirect('/login');
   }
   res.locals.auth = true; // User is authenticated, set `auth` to true
+  res.locals.message = req.session.message || null; // Pass message to locals
+  res.locals.error = req.session.error || false; // Pass error status to locals
+
+  // Clear session messages to prevent them from persisting
+  req.session.message = null;
+  req.session.error = null;
   next(); // Proceed to the next middleware or route handler if authenticated
 };
 
@@ -90,6 +96,15 @@ app.get('/', (req, res) => { // temporary route that just shows a message
   // removing this temp response.
   // res.send('<h1>This is Project-ActiveU!</h1>'); 
   res.redirect('/login'); // Redirect to the /login route
+});
+
+app.get('/createWorkout', auth, (req, res) => {
+  res.render('pages/createWorkout'); // Render createWorkout.hbs
+});
+
+// Route for Add Workout page
+app.get('/addWorkout', auth, (req, res) => {
+  res.render('pages/addWorkout'); // Render addWorkout.hbs
 });
 
 app.get('/login', (req, res) => {
@@ -180,9 +195,19 @@ app.get('/account', auth, async (req, res) => { // get basic account information
     const username = req.session.user.username;
     const userQuery = 'SELECT username, email FROM users WHERE username = $1';
     const userData = await db.oneOrNone(userQuery, [username]);
-
+    const acceptedFriendsQuery = `
+      SELECT 
+        CASE 
+          WHEN user1 = $1 THEN user2 
+          ELSE user1 
+        END AS username
+      FROM friendships
+      WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+    `;
+    const friends = await db.any(acceptedFriendsQuery, [username]);
+    console.log(friends);
     if (userData) {
-      res.render('pages/account', userData);
+      res.render('pages/account', {userData, friends});
     } else {
       res.status(404).send('User not found');
     }
@@ -190,6 +215,45 @@ app.get('/account', auth, async (req, res) => { // get basic account information
     console.error('Error fetching primary user data', error);
     res.status(500).send('Internal Server Error');
   }
+});
+
+app.get('/profile', auth, async(req, res)=>{
+  const actual_user = req.session.user.username;
+  const username = req.query.username;
+
+  const email_query = `
+    SELECT email
+    FROM users
+    WHERE ($1 = users.username);
+  `;
+  const emailResult = await db.any(email_query, [username]);
+  const email = emailResult[0].email;
+
+  const acceptedFriendsQuery = `
+    SELECT 
+      CASE 
+        WHEN user1 = $1 THEN user2 
+        ELSE user1 
+      END AS username
+    FROM friendships
+    WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+  `;
+
+  const friends = await db.any(acceptedFriendsQuery, [username]);
+  const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
+  
+  friends.forEach(element => {
+    if(element.username == actual_user){
+      return;
+    }else if (user_friends.some((item) => item.username == element.username)) {
+      element.isMutual = true; 
+      element.isPotential = false;
+    } else {
+      element.isMutual = false; 
+      element.isPotential = true; 
+    }
+  });
+  res.render('pages/viewFriends', {username, friends, email});
 });
 
 // Post Requests
@@ -501,48 +565,6 @@ app.get('/api/workouts', async (req, res) => {
       res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
-
-app.get('/profile', auth, async(req, res)=>{
-  
-
-  const actual_user = req.session.user.username;
-  const username = req.query.username;
-
-  const email_query = `
-    SELECT email
-    FROM users
-    WHERE ($1 = users.username);
-  `;
-  const emailResult = await db.any(email_query, [username]);
-  const email = emailResult[0].email;
-
-  const acceptedFriendsQuery = `
-    SELECT 
-      CASE 
-        WHEN user1 = $1 THEN user2 
-        ELSE user1 
-      END AS username
-    FROM friendships
-    WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
-  `;
-
-  const friends = await db.any(acceptedFriendsQuery, [username]);
-  const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
-  
-  friends.forEach(element => {
-    if(element.username == actual_user){
-      return;
-    }else if (user_friends.some((item) => item.username == element.username)) {
-      element.isMutual = true; 
-      element.isPotential = false;
-    } else {
-      element.isMutual = false; 
-      element.isPotential = true; 
-    }
-  });
-
-  res.render('pages/viewFriends', {username, friends, email});
-})
 // ------------------------------------
 //             Start Server
 // ------------------------------------

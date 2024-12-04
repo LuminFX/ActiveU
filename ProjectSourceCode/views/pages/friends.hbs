@@ -49,28 +49,7 @@
               <ul class="list-group">
                 {{#each sent}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
-                    <div>
-                      <button class="btn btn-success btn-sm" data-username="{{this.username}}" data-action="approve">Approve</button>
-                      <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="decline">Decline</button>
-                    </div>
-                  </li>
-                {{else}}
-                  <div class="alert alert-info" role="alert">
-                    No pending friend requests.
-                  </div>
-                {{/each}}
-              </ul>
-            </div>
-          </div>
-
-          <div class="mb-5">
-            <h4>Sent Friend Requests</h4>
-            <div id="sent-friend-requests">
-              <ul class="list-group">
-                {{#each sent}}
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                    <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
                       <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="cancel">Cancel</button>
                     </div>
@@ -90,7 +69,7 @@
             <ul class="list-group">
               {{#each friends}}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                  <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                   <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
                 </li>
               {{/each}}
