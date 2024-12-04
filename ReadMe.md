@@ -31,7 +31,7 @@ Node.js, Express.js, Express-Handlebars, PostgreSQL, Bcrypt.js, Axios, Docker
    - Ensure you have a Git client installed to clone the repository.
 
 3. **API Key for Exercises API**:
-   - Obtain an API key for the (Exercises API)[https://api-ninjas.com/api/exercises] on API Ninjas.
+   - Obtain an API key for the [Exercises API](https://api-ninjas.com/api/exercises) on API Ninjas.
 
 ---
 
