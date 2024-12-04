@@ -81,6 +81,12 @@ const auth = (req, res, next) => {
     return res.redirect('/login');
   }
   res.locals.auth = true; // User is authenticated, set `auth` to true
+  res.locals.message = req.session.message || null; // Pass message to locals
+  res.locals.error = req.session.error || false; // Pass error status to locals
+
+  // Clear session messages to prevent them from persisting
+  req.session.message = null;
+  req.session.error = null;
   next(); // Proceed to the next middleware or route handler if authenticated
 };
 
@@ -90,15 +96,6 @@ app.get('/', (req, res) => { // temporary route that just shows a message
   // removing this temp response.
   // res.send('<h1>This is Project-ActiveU!</h1>'); 
   res.redirect('/login'); // Redirect to the /login route
-});
-
-app.get('/createWorkout', auth, (req, res) => {
-  res.render('pages/createWorkout'); // Render createWorkout.hbs
-});
-
-// Route for Add Workout page
-app.get('/addWorkout', auth, (req, res) => {
-  res.render('pages/addWorkout'); // Render addWorkout.hbs
 });
 
 app.get('/login', (req, res) => {
@@ -189,9 +186,27 @@ app.get('/account', auth, async (req, res) => { // get basic account information
     const username = req.session.user.username;
     const userQuery = 'SELECT username, email FROM users WHERE username = $1';
     const userData = await db.oneOrNone(userQuery, [username]);
+    const acceptedFriendsQuery = `
+      SELECT 
+        CASE 
+          WHEN user1 = $1 THEN user2 
+          ELSE user1 
+        END AS username
+      FROM friendships
+      WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+    `;
+    const friends = await db.any(acceptedFriendsQuery, [username]);
 
+    const workout_query = `
+      SELECT workout_name, duration, DATE(workout_date) AS workout_date
+      FROM workouts
+      WHERE ($1 = workouts.username);
+    `;
+
+    const workout = await db.any(workout_query, [username]); 
+    console.log(workout);
     if (userData) {
-      res.render('pages/account', userData);
+      res.render('pages/account', {userData, friends, workout});
     } else {
       res.status(404).send('User not found');
     }
@@ -201,7 +216,82 @@ app.get('/account', auth, async (req, res) => { // get basic account information
   }
 });
 
+app.get('/createWorkout', auth, (req, res) => {
+  res.render('pages/createWorkout'); // Render createWorkout.hbs
+});
+
+// Route for Add Workout page
+app.get('/logWorkout', auth, (req, res) => {
+  res.render('pages/logWorkout'); // Render addWorkout.hbs
+});
+
+
+app.get('/profile', auth, async(req, res)=>{
+  const actual_user = req.session.user.username;
+  const username = req.query.username;
+
+  const email_query = `
+    SELECT email
+    FROM users
+    WHERE ($1 = users.username);
+  `;
+  const emailResult = await db.any(email_query, [username]);
+  const email = emailResult[0].email;
+
+  const acceptedFriendsQuery = `
+    SELECT 
+      CASE 
+        WHEN user1 = $1 THEN user2 
+        ELSE user1 
+      END AS username
+    FROM friendships
+    WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
+  `;
+
+  const friends = await db.any(acceptedFriendsQuery, [username]);
+  const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
+  
+  const workout_query = `
+      SELECT workout_name, duration, DATE(workout_date) AS workout_date
+      FROM workouts
+      WHERE ($1 = workouts.username);
+    `;
+
+  const workout = await db.any(workout_query, [username]); 
+  friends.forEach(element => {
+    if(element.username == actual_user){
+      return;
+    }else if (user_friends.some((item) => item.username == element.username)) {
+      element.isMutual = true; 
+      element.isPotential = false;
+    } else {
+      element.isMutual = false; 
+      element.isPotential = true; 
+    }
+  });
+  res.render('pages/viewFriends', {username, friends, email, workout});
+});
+
 // Post Requests
+
+app.post('/add-workout', async (req, res) =>{
+  const username = req.session.user.username;
+  const duration = req.body.workoutData.duration;
+  const workout_name = req.body.workoutData.name;
+  try {
+    await db.query(
+      `
+      INSERT INTO workouts(username, workout_name, duration)
+      VALUES ($1, $2, $3);
+      `,
+      [username, workout_name, duration]
+    );
+    res.redirect('/home');
+  } catch (error) {
+    console.error('Error adding Workout:', error);
+    res.redirect('/home');
+  }
+});
 
 app.post('/friend-request/approve', async (req, res) => {
   const { username } = req.body;
@@ -450,6 +540,16 @@ app.get('/debug/friends', async (req, res) => {
   }
 });
 
+app.get('/debug/add-workout', async (req, res) => {
+  try {
+    const workout = await db.any('SELECT * FROM workouts');
+    res.json(workout); // Return the data as JSON
+  } catch (error) {
+    console.error('Error fetching workouts:', error);
+    res.status(500).send('Error fetching workouts');
+  }
+});
+
 app.get('/genpassword/:password', async (req, res) => {
   try {
     const password = req.params.password;
@@ -465,6 +565,8 @@ app.get('/genpassword/:password', async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 });
+
+
 
 app.get('/api/workouts', async (req, res) => {
   const { difficulty, muscle, type } = req.query;
@@ -510,9 +612,6 @@ app.get('/api/workouts', async (req, res) => {
       res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
-
-
-
 // ------------------------------------
 //             Start Server
 // ------------------------------------

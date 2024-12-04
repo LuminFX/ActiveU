@@ -83,7 +83,8 @@
             const pauseButton = document.getElementById('pauseButton');
             const stopButton = document.getElementById('stopButton');
             const saveWorkoutButton = document.getElementById('saveWorkoutButton');
-
+            //const username = req.session.user.username;
+            //alert(username);
             startButton.addEventListener('click', () => {
                 if (!isPaused) elapsedTime = 0;
                 isPaused = false;
@@ -106,7 +107,7 @@
                 timerDisplay.textContent = formatTime(elapsedTime);
             });
 
-            saveWorkoutButton.addEventListener('click', () => {
+            saveWorkoutButton.addEventListener('click', async () => {
                 const workoutName = document.getElementById('workoutName').value;
                 if (!workoutName.trim()) {
                     alert('Please enter a workout name.');
@@ -117,9 +118,26 @@
                     name: workoutName,
                     duration: formatTime(elapsedTime),
                 };
+                
+                try {
+                    const response = await fetch(`/add-workout`, {
+                        method: "POST",
+                        headers: {
+                        "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({workoutData}),
+                    });
 
-                console.log('Saving workout:', workoutData);
-                alert('Workout saved successfully!');
+                    if (response.ok) {
+                        console.log('Saving workout:', workoutData);
+                        //alert(`Workout Saved Successfully!, ${workoutData.name}`);
+                        location.reload();
+                    } else {
+                        console.error(`Failed to Process Workout`);
+                    }
+                } catch (error) {
+                    console.error("Error Processing workout", error);
+                }
             });
         });
 

@@ -31,15 +31,14 @@
 
 
     CREATE TABLE workouts (
-        
         workout_id SERIAL PRIMARY KEY,
-        
+        workout_name VARCHAR(50) NOT NULL,
         username VARCHAR(50) NOT NULL,
-        workout_date DATE NOT NULL DEFAULT CURRENT_DATE,
-        duration INTERVAL,
+        workout_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        duration TIME,
         
         FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
-    );
+    );  
 
     CREATE TABLE exercises (
         

@@ -28,7 +28,7 @@
               <ul class="list-group">
                 {{#each pending}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                    <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
                       <button class="btn btn-success btn-sm" data-username="{{this.username}}" data-action="approve">Approve</button>
                       <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="decline">Decline</button>
@@ -49,7 +49,7 @@
               <ul class="list-group">
                 {{#each sent}}
                   <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                    <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                     <div>
                       <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="cancel">Cancel</button>
                     </div>
@@ -69,7 +69,7 @@
             <ul class="list-group">
               {{#each friends}}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <a href="/profile/{{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                  <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                   <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
                 </li>
               {{/each}}
