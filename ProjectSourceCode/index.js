@@ -141,7 +141,7 @@ app.get('/friends', auth, async (req, res) => {
       WHERE (user1 = $1 OR user2 = $1) AND status = 'accepted';
     `;
 
-      const pendingFriendsQuery = `
+    const pendingFriendsQuery = `
       SELECT 
         CASE 
           WHEN user1 = $1 THEN user2 
@@ -166,11 +166,11 @@ app.get('/friends', auth, async (req, res) => {
     const sent = await db.any(sentFriendsQuery, [username]);
 
 
-    res.render('pages/friends', { 
-      friends, 
+    res.render('pages/friends', {
+      friends,
       pending,
       sent
-    }); 
+    });
   } catch (error) {
     console.error('Error fetching friends:', error);
     res.status(500).send('Internal Server Error');
@@ -178,7 +178,7 @@ app.get('/friends', auth, async (req, res) => {
 });
 
 app.get('/welcome', (req, res) => { // dummy request for testing lab 11
-  res.json({status: 'success', message: 'Welcome!'});
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
 app.get('/account', auth, async (req, res) => { // get basic account information for now. TODO: add workouts and friends fetching
@@ -203,10 +203,10 @@ app.get('/account', auth, async (req, res) => { // get basic account information
       WHERE ($1 = workouts.username);
     `;
 
-    const workout = await db.any(workout_query, [username]); 
+    const workout = await db.any(workout_query, [username]);
     console.log(workout);
     if (userData) {
-      res.render('pages/account', {userData, friends, workout});
+      res.render('pages/account', { userData, friends, workout });
     } else {
       res.status(404).send('User not found');
     }
@@ -226,7 +226,7 @@ app.get('/logWorkout', auth, (req, res) => {
 });
 
 
-app.get('/profile', auth, async(req, res)=>{
+app.get('/profile', auth, async (req, res) => {
   const actual_user = req.session.user.username;
   const username = req.query.username;
 
@@ -250,31 +250,31 @@ app.get('/profile', auth, async(req, res)=>{
 
   const friends = await db.any(acceptedFriendsQuery, [username]);
   const user_friends = await db.any(acceptedFriendsQuery, [actual_user]);
-  
+
   const workout_query = `
       SELECT workout_name, duration, DATE(workout_date) AS workout_date
       FROM workouts
       WHERE ($1 = workouts.username);
     `;
 
-  const workout = await db.any(workout_query, [username]); 
+  const workout = await db.any(workout_query, [username]);
   friends.forEach(element => {
-    if(element.username == actual_user){
+    if (element.username == actual_user) {
       return;
-    }else if (user_friends.some((item) => item.username == element.username)) {
-      element.isMutual = true; 
+    } else if (user_friends.some((item) => item.username == element.username)) {
+      element.isMutual = true;
       element.isPotential = false;
     } else {
-      element.isMutual = false; 
-      element.isPotential = true; 
+      element.isMutual = false;
+      element.isPotential = true;
     }
   });
-  res.render('pages/viewFriends', {username, friends, email, workout});
+  res.render('pages/viewFriends', { username, friends, email, workout });
 });
 
 // Post Requests
 
-app.post('/add-workout', async (req, res) =>{
+app.post('/add-workout', async (req, res) => {
   const username = req.session.user.username;
   const duration = req.body.workoutData.duration;
   const workout_name = req.body.workoutData.name;
@@ -308,12 +308,12 @@ app.post('/friend-request/approve', async (req, res) => {
     );
 
     res.redirect('/friends');
-    
+
   } catch (error) {
     console.error('Error approving friend request:', error);
 
     res.redirect('/friends');
-    
+
   }
 });
 
@@ -339,8 +339,8 @@ app.post('/friend-request/decline', async (req, res) => {
 });
 
 app.post('/friend-request/cancel', async (req, res) => {
-  const { username } = req.body; 
-  const currentUser = req.session.user.username; 
+  const { username } = req.body;
+  const currentUser = req.session.user.username;
 
   try {
     await db.query(
@@ -439,29 +439,28 @@ app.post('/friend-request/send', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { usernameOrEmail, password } = req.body;
   try {
-    //query to find the user by username
+    // query to find the user by username
     const userQuery = 'SELECT * FROM users WHERE username = $1 OR email = $1';
     const user = await db.oneOrNone(userQuery, [usernameOrEmail]);
 
-    //if user is not found redirect to register
+    // if user is not found
     if (!user) {
       req.session.message = 'Email or username not found. Register here';
       req.session.error = true;
-      return res.redirect('/register');
+      return res.status(400).redirect('/register');
     }
 
-    //compare the provided password with the hashed password in the database
+    // compare the provided password with the hashed password in the database
     const match = await bcrypt.compare(password, user.password);
 
-    //if password does not match render login page with error message
+    // if password does not match
     if (!match) {
       req.session.message = 'Incorrect password';
       req.session.error = true;
-      return res.redirect('/login'); // Use return to stop execution
+      return res.status(400).redirect('/login');
     }
 
-    //if password matches save user details in session and redirect to /home
-
+    // if password matches
     req.session.message = null; // Clear any previous messages
     req.session.error = null;
 
@@ -472,7 +471,7 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Error logging in:', error);
-    res.render('pages/login');
+    return res.status(500).render('pages/login');  // Set status 500 here for unexpected errors
   }
 });
 
@@ -483,7 +482,7 @@ app.post('/register', async (req, res) => {
     if (!password || password.length < 5) {
       req.session.message = 'Password must be at least 5 characters long.';
       req.session.error = true;
-      return res.redirect('/register'); // Use return to stop execution
+      return res.status(400).redirect('/register');
     }
     // hash the password using bcrypt with a salt factor of 10
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -499,9 +498,7 @@ app.post('/register', async (req, res) => {
     res.redirect('/login');
   } catch (error) {
     console.error('Error registering user:', error);
-
-    // on failure redirect back to register
-    res.redirect('/register');
+    return res.status(500).redirect('/register');  // Set status 500 here for unexpected errors
   }
 });
 
@@ -574,42 +571,42 @@ app.get('/api/workouts', async (req, res) => {
   console.log("Received query parameters:", { difficulty, muscle, type });
 
   try {
-      // Ensure one of the parameters is provided
-      // if (!difficulty && !muscle && !type) {
-      //     return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
-      // }
+    // Ensure one of the parameters is provided
+    // if (!difficulty && !muscle && !type) {
+    //     return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
+    // }
 
-      // Determine which filter is being used
-      let filter = '';
-      let value = '';
+    // Determine which filter is being used
+    let filter = '';
+    let value = '';
 
-      if (difficulty) {
-          filter = 'difficulty';
-          value = difficulty;
-      } else if (muscle) {
-          filter = 'muscle';
-          value = muscle;
-      } else if (type) {
-          filter = 'type';
-          value = type;
-      }
+    if (difficulty) {
+      filter = 'difficulty';
+      value = difficulty;
+    } else if (muscle) {
+      filter = 'muscle';
+      value = muscle;
+    } else if (type) {
+      filter = 'type';
+      value = type;
+    }
 
-      // Construct the API URL
-      // const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
-      api_key1 = "i3dR1AXd4JMlSzu5ERBYvw==sAAVBczH1I0Vut5X";
-      const apiUrl = `https://api.api-ninjas.com/v1/exercises?muscle=chest`;
-      console.log(`Fetching from API: ${apiUrl}`);
+    // Construct the API URL
+    // const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
+    api_key1 = "i3dR1AXd4JMlSzu5ERBYvw==sAAVBczH1I0Vut5X";
+    const apiUrl = `https://api.api-ninjas.com/v1/exercises?muscle=chest`;
+    console.log(`Fetching from API: ${apiUrl}`);
 
-      // Make the API request
-      const response = await axios.get(apiUrl, {
-          headers: { 'X-Api-Key': api_key1 },
-      });
+    // Make the API request
+    const response = await axios.get(apiUrl, {
+      headers: { 'X-Api-Key': api_key1 },
+    });
 
-      // Return the API response to the client
-      res.json(response);
+    // Return the API response to the client
+    res.json(response);
   } catch (error) {
-      console.error("Error in API call:", error.response?.data || error.message);
-      res.status(500).json({ error: "Failed to fetch exercises" });
+    console.error("Error in API call:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
 // ------------------------------------
