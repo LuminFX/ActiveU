@@ -284,6 +284,7 @@ app.get('/profile', auth, async(req, res)=>{
 // Post Requests
 
 app.post('/add-workout', async (req, res) => {
+  console.log(req.body);
   const username = req.session.user?.username;
   const { duration, name: workout_name } = req.body.workoutData;
 

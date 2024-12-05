@@ -141,7 +141,7 @@
                                 <p><strong>Instructions:</strong> ${workout.instructions}</p>
                             </div>
                             <div class="card-footer text-left">
-                                <button class="btn btn-warning">Add Workout</button>
+                                <button class="btn btn-warning save-workout-button" data-name="${workout.name}">Add Workout</button>
                             </div>
                         </div>
                     `;
@@ -153,6 +153,63 @@
                     "<p>Failed to fetch workouts. Please try again later.</p>";
             }
         });
+            searchResultsDiv.addEventListener("click", async (event) => {
+            if (event.target.classList.contains("save-workout-button")) {
+                const workoutName = event.target.getAttribute("data-name");
+                if (!workoutName) {
+                    alert("Workout name is missing!");
+                    return;
+                }
+
+                const workoutData = {
+                    name: workoutName,
+                    duration: '00:10:00', // Example duration
+                };
+
+                try {
+                    const response = await fetch("/add-workout", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({workoutData}),
+                    });
+
+                    if (response.ok) {
+                        alert("Workout saved successfully!");
+                    } else {
+                        alert("Failed to save workout. Please try again.");
+                    }
+                } catch (error) {
+                    console.error("Error saving workout:", error);
+                    alert("An unexpected error occurred.");
+                }
+            }
+        });
+
+            function stopTimer() {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = formatTime(elapsedTime);
+                isPaused = true; // Ensure timer is paused
+            }
+
+            function resetForm() {
+                document.getElementById('workoutName').value = '';
+                timerDisplay.textContent = '00:00:00';
+                elapsedTime = 0;
+                isPaused = false;
+            }
+
+            function formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+            }
+
+            function pad(num) {
+                return num.toString().padStart(2, '0');
+            }
     </script>
     
     {{!-- for the footer to render in the correct spot. --}}
