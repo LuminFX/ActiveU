@@ -20,12 +20,6 @@
                       {{#each friends}}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                           <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
-                            {{#if isMutual}}
-                                <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
-                            {{/if}}
-                            {{#if isPotential}}
-                                <button class="btn btn-success btn-sm" data-username="{{this.username}}" data-action="send">ADD</button>
-                            {{/if}}
                         </li>
                       {{/each}}
                   </ul>
