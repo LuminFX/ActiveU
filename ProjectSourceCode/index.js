@@ -81,12 +81,12 @@ const auth = (req, res, next) => {
     return res.redirect('/login');
   }
   res.locals.auth = true; // User is authenticated, set `auth` to true
-  res.locals.message = req.session.message || null; // Pass message to locals
-  res.locals.error = req.session.error || false; // Pass error status to locals
+  // res.locals.message = req.session.message || null; // Pass message to locals
+  // res.locals.error = req.session.error || false; // Pass error status to locals
 
-  // Clear session messages to prevent them from persisting
-  req.session.message = null;
-  req.session.error = null;
+  // // Clear session messages to prevent them from persisting
+  // req.session.message = null;
+  // req.session.error = null;
   next(); // Proceed to the next middleware or route handler if authenticated
 };
 
@@ -102,7 +102,7 @@ app.get('/login', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
 
-  // Clear the message and error after rendering
+  //clear the message and error after rendering
   req.session.message = null;
   req.session.error = null;
 
@@ -128,6 +128,9 @@ app.get('/home', auth, async (req, res) => {
 });
 
 app.get('/friends', auth, async (req, res) => {
+   //clear the message and error after rendering
+   req.session.message = null;
+   req.session.error = null;
   try {
     const username = req.session.user.username;
 
@@ -182,6 +185,9 @@ app.get('/welcome', (req, res) => { // dummy request for testing lab 11
 });
 
 app.get('/account', auth, async (req, res) => { // get basic account information for now. TODO: add workouts and friends fetching
+  //clear the message and error after rendering
+  req.session.message = null;
+  req.session.error = null;
   try {
     const username = req.session.user.username;
     const userQuery = 'SELECT username, email FROM users WHERE username = $1';
@@ -217,6 +223,9 @@ app.get('/account', auth, async (req, res) => { // get basic account information
 });
 
 app.get('/createWorkout', auth, (req, res) => {
+  //clear the message and error after rendering
+  req.session.message = null;
+  req.session.error = null;
   res.render('pages/createWorkout'); // Render createWorkout.hbs
 });
 
@@ -574,15 +583,14 @@ app.get('/api/workouts', async (req, res) => {
   console.log("Received query parameters:", { difficulty, muscle, type });
 
   try {
-      // Ensure one of the parameters is provided
-      // if (!difficulty && !muscle && !type) {
-      //     return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
-      // }
+      // Ensure at least one parameter is provided
+      if (!difficulty && !muscle && !type) {
+          return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
+      }
 
-      // Determine which filter is being used
+      // Determine filter and construct the API URL
       let filter = '';
       let value = '';
-
       if (difficulty) {
           filter = 'difficulty';
           value = difficulty;
@@ -593,25 +601,34 @@ app.get('/api/workouts', async (req, res) => {
           filter = 'type';
           value = type;
       }
-
-      // Construct the API URL
-      // const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
-      api_key1 = "i3dR1AXd4JMlSzu5ERBYvw==sAAVBczH1I0Vut5X";
-      const apiUrl = `https://api.api-ninjas.com/v1/exercises?muscle=chest`;
+      const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
       console.log(`Fetching from API: ${apiUrl}`);
 
       // Make the API request
+      const apiKey = "i3dR1AXd4JMlSzu5ERBYvw==sAAVBczH1I0Vut5X";
       const response = await axios.get(apiUrl, {
-          headers: { 'X-Api-Key': api_key1 },
+          headers: { 'X-Api-Key': apiKey },
       });
 
-      // Return the API response to the client
-      res.json(response);
+      // Send the API response to the client
+      res.json(response.data);
   } catch (error) {
-      console.error("Error in API call:", error.response?.data || error.message);
+      if (error.response) {
+          console.error("Error in API call:", {
+              status: error.response.status,
+              data: error.response.data,
+          });
+      } else if (error.request) {
+          console.error("No response received from API:", error.request);
+      } else {
+          console.error("Error setting up API request:", error.message);
+      }
       res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
+
+
+
 // ------------------------------------
 //             Start Server
 // ------------------------------------
