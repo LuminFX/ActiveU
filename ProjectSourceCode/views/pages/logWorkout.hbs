@@ -7,16 +7,18 @@
         <section>
             <style>
                 .card {
-                    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+                    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+                    background-color: white; 
+                    border: 1px solid #ddd; 
                 }
 
                 .card:hover {
-                    transform: scale(1.05); /* Slightly enlarge the card */
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+                    transform: scale(1.05); 
+                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
                 }
             </style>
 
-            <!-- First Dropdown for Filter -->
+
             <label for="searchBy">Search By:</label>
             <select id="searchBy" class="dropdown">
                 <option value="" disabled selected>Select a Filter</option>
@@ -25,24 +27,24 @@
                 <option value="difficulty">Difficulty</option>
             </select>
 
-            <!-- Second Dropdown for Options -->
+    
             <label for="filterOptions">Select an Option:</label>
             <select id="filterOptions" class="dropdown" disabled>
                 <option value="" disabled selected>Options will populate here...</option>
             </select>
 
-            <!-- Submit Button -->
+     
             <button id="searchButton" disabled>Search</button>
 
-            <!-- Search Results Grid -->
+         
             <div id="searchResults" class="row">
-                <!-- Results will appear here -->
+             
             </div>
         </section>
     </main>
 
     <script>
-        // JavaScript logic remains unchanged from the earlier example
+        // javaScript logic
         const options = {
             type: [
                 "cardio",
@@ -160,10 +162,10 @@
     if (event.target && event.target.id === 'add-button') {
         const cardBody = event.target.closest(".card").querySelector(".card-body");
 
-        // Extract workout name
+        // extract workout name
         const workoutName = cardBody.querySelector(".card-title").textContent;
 
-        // Prompt the user for time in HH:MM:SS format
+        // user for time in HH:MM:SS format 
         const timeInput = prompt("Enter the workout duration (HH:MM:SS):");
         
         // Validate the time input
@@ -213,7 +215,6 @@
         }
 
     </script>
-    
-    {{!-- for the footer to render in the correct spot. --}}
+    ß
     <div style="height: 10000px; background-color: white; margin-top: 20px;"></div>
 </body>
