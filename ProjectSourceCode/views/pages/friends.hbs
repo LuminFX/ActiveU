@@ -81,22 +81,101 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const incomingFriendRequestsContainer = document.getElementById("incoming-friend-requests");
-    const sentFriendRequestsContainer = document.getElementById("sent-friend-requests");
-    const friendsContainer = document.getElementById("friends-list");
-    const addFriendForm = document.getElementById("add-friend-form");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const incomingFriendRequestsContainer = document.getElementById("incoming-friend-requests");
+      const sentFriendRequestsContainer = document.getElementById("sent-friend-requests");
+      const friendsContainer = document.getElementById("friends-list");
+      const addFriendForm = document.getElementById("add-friend-form");
 
-    incomingFriendRequestsContainer.addEventListener("click", async (event) => {
-      const button = event.target;
+      incomingFriendRequestsContainer.addEventListener("click", async (event) => {
+        const button = event.target;
 
-      if (button.tagName === "BUTTON" && button.dataset.action) {
-        const username = button.dataset.username;
-        const action = button.dataset.action;
+        if (button.tagName === "BUTTON" && button.dataset.action) {
+          const username = button.dataset.username;
+          const action = button.dataset.action;
+
+          try {
+            const response = await fetch(`/friend-request/${action}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username }),
+            });
+
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error(`Failed to ${action} friend request.`);
+            }
+          } catch (error) {
+            console.error("Error processing friend request:", error);
+          }
+        }
+      });
+
+      // Handle sent friend requests (cancel)
+      sentFriendRequestsContainer.addEventListener("click", async (event) => {
+        const button = event.target;
+
+        if (button.tagName === "BUTTON" && button.dataset.action === "cancel") {
+          const username = button.dataset.username;
+
+          try {
+            const response = await fetch(`/friend-request/cancel`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username }),
+            });
+
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error("Failed to cancel friend request.");
+            }
+          } catch (error) {
+            console.error("Error processing cancel request:", error);
+          }
+        }
+      });
+
+      friendsContainer.addEventListener("click", async (event) => {
+        const button = event.target;
+
+        if (button.tagName === "BUTTON" && button.dataset.action) {
+          const username = button.dataset.username;
+          const action = button.dataset.action;
+
+          try {
+            const response = await fetch(`/friend-request/${action}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username }),
+            });
+
+            if (response.ok) {
+              location.reload();
+            } else {
+              console.error(`Failed to ${action} friend`);
+            }
+          } catch (error) {
+            console.error("Error removing friend:", error);
+          }
+        }
+      });
+
+      addFriendForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById("friend-username").value;
 
         try {
-          const response = await fetch(`/friend-request/${action}`, {
+          const response = await fetch(`/friend-request/send`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -107,93 +186,15 @@
           if (response.ok) {
             location.reload();
           } else {
-            console.error(`Failed to ${action} friend request.`);
+            console.error("Failed to send friend request.");
           }
         } catch (error) {
-          console.error("Error processing friend request:", error);
+          console.error("Error sending friend request:", error);
         }
-      }
+      });
     });
-
-    // Handle sent friend requests (cancel)
-    sentFriendRequestsContainer.addEventListener("click", async (event) => {
-      const button = event.target;
-
-      if (button.tagName === "BUTTON" && button.dataset.action === "cancel") {
-        const username = button.dataset.username;
-
-        try {
-          const response = await fetch(`/friend-request/cancel`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username }),
-          });
-
-          if (response.ok) {
-            location.reload();
-          } else {
-            console.error("Failed to cancel friend request.");
-          }
-        } catch (error) {
-          console.error("Error processing cancel request:", error);
-        }
-      }
-    });
-
-    friendsContainer.addEventListener("click", async (event) => {
-      const button = event.target;
-
-      if (button.tagName === "BUTTON" && button.dataset.action) {
-        const username = button.dataset.username;
-        const action = button.dataset.action;
-
-        try {
-          const response = await fetch(`/friend-request/${action}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username }),
-          });
-
-          if (response.ok) {
-            location.reload();
-          } else {
-            console.error(`Failed to ${action} friend`);
-          }
-        } catch (error) {
-          console.error("Error removing friend:", error);
-        }
-      }
-    });
-
-    addFriendForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const username = document.getElementById("friend-username").value;
-
-      try {
-        const response = await fetch(`/friend-request/send`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username }),
-        });
-
-        if (response.ok) {
-          location.reload();
-        } else {
-          console.error("Failed to send friend request.");
-        }
-      } catch (error) {
-        console.error("Error sending friend request:", error);
-      }
-    });
-  });
-</script>
-
-
+  </script>
+      {{!-- for the footer to render in the correct spot. --}}
+    <div style="height: 10000px; background-color: white; margin-top: 20px;"></div>
+</body>
 

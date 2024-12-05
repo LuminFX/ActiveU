@@ -1,9 +1,10 @@
-<body>
-    <header style="text-align: center; background-color: #121212; padding: 20px; border-bottom: 2px solid #f1c40f;">
+<body style="background-color: black; margin: 0; font-family: Arial, sans-serif;">
+    <header style="text-align: center; background-color: black; padding: 20px; border-bottom: 2px solid #f1c40f;">
         <h1 style="color: #f1c40f; font-family: Arial, sans-serif; font-size: 36px;">Create Workout</h1>
     </header>
 
-    <div class="timer-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; background-color: #121212;">
+    <!-- Timer Section -->
+    <div class="timer-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh;">
         <div class="timer-display" id="timer" style="
             font-size: 80px;
             font-weight: bold;
@@ -46,13 +47,14 @@
         </div>
     </div>
 
+    <!-- Workout Name Input -->
     <div class="workout-name" style="text-align: center; margin-top: 30px;">
-        <label for="workoutName" style="color: #f1c40f; font-size: 18px; font-family: Arial, sans-serif;">Workout Name:</label>
+        <label for="workoutName" style="color: #f1c40f; font-size: 18px;">Workout Name:</label>
         <input type="text" id="workoutName" placeholder="Enter workout name" style="
             padding: 10px;
             font-size: 16px;
-            color: #f1c40f;
-            background-color: #1e1e1e;
+            color: black;
+            background-color: white;
             border: 2px solid #f1c40f;
             border-radius: 5px;
             width: 50%;
@@ -60,6 +62,7 @@
         ">
     </div>
 
+    <!-- Save Button -->
     <div class="save-button" style="text-align: center; margin-top: 20px;">
         <button id="saveWorkoutButton" style="
             font-size: 20px;
@@ -83,8 +86,8 @@
             const pauseButton = document.getElementById('pauseButton');
             const stopButton = document.getElementById('stopButton');
             const saveWorkoutButton = document.getElementById('saveWorkoutButton');
-            //const username = req.session.user.username;
-            //alert(username);
+
+            // Timer buttons
             startButton.addEventListener('click', () => {
                 if (!isPaused) elapsedTime = 0;
                 isPaused = false;
@@ -101,15 +104,13 @@
             });
 
             stopButton.addEventListener('click', () => {
-                elapsedTime = 0;
-                isPaused = false;
-                clearInterval(timerInterval);
-                timerDisplay.textContent = formatTime(elapsedTime);
+                stopTimer();
             });
 
+            // Save Workout button
             saveWorkoutButton.addEventListener('click', async () => {
-                const workoutName = document.getElementById('workoutName').value;
-                if (!workoutName.trim()) {
+                const workoutName = document.getElementById('workoutName').value.trim();
+                if (!workoutName) {
                     alert('Please enter a workout name.');
                     return;
                 }
@@ -118,39 +119,52 @@
                     name: workoutName,
                     duration: formatTime(elapsedTime),
                 };
-                
+
                 try {
-                    const response = await fetch(`/add-workout`, {
-                        method: "POST",
+                    const response = await fetch('/add-workout', {
+                        method: 'POST',
                         headers: {
-                        "Content-Type": "application/json",
+                            'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({workoutData}),
+                        body: JSON.stringify({ workoutData }),
                     });
 
                     if (response.ok) {
-                        console.log('Saving workout:', workoutData);
-                
-                        location.reload();
+                        alert('Workout saved successfully!');
+                        stopTimer(); // Stop the timer after saving
+                        resetForm();
                     } else {
-                        console.error(`Failed to Process Workout`);
+                        alert('Failed to save workout. Please try again.');
                     }
                 } catch (error) {
-                    console.error("Error Processing workout", error);
+                    console.error('Error saving workout:', error);
+                    alert('An unexpected error occurred.');
                 }
             });
+
+            function stopTimer() {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = formatTime(elapsedTime);
+                isPaused = true; // Ensure timer is paused
+            }
+
+            function resetForm() {
+                document.getElementById('workoutName').value = '';
+                timerDisplay.textContent = '00:00:00';
+                elapsedTime = 0;
+                isPaused = false;
+            }
+
+            function formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+            }
+
+            function pad(num) {
+                return num.toString().padStart(2, '0');
+            }
         });
-
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
-        }
-
-        function pad(num) {
-            return num.toString().padStart(2, '0');
-        }
     </script>
 </body>
-

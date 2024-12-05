@@ -296,9 +296,15 @@ app.get('/profile', auth, async (req, res) => {
 // Post Requests
 
 app.post('/add-workout', async (req, res) => {
-  const username = req.session.user.username;
-  const duration = req.body.workoutData.duration;
-  const workout_name = req.body.workoutData.name;
+  const username = req.session.user?.username;
+  const { duration, name: workout_name } = req.body.workoutData;
+
+  if (!username || !workout_name || !duration) {
+    req.session.message = 'Invalid workout data.';
+    req.session.error = true;
+    return req.session.save(() => res.redirect('/home'));
+  }
+
   try {
     await db.query(
       `
@@ -307,12 +313,17 @@ app.post('/add-workout', async (req, res) => {
       `,
       [username, workout_name, duration]
     );
-    res.redirect('/home');
+    req.session.message = 'Workout added successfully!';
+    req.session.error = false;
+    req.session.save(() => res.redirect('/home'));
   } catch (error) {
     console.error('Error adding Workout:', error);
-    res.redirect('/home');
+    req.session.message = 'Failed to add workout.';
+    req.session.error = true;
+    req.session.save(() => res.redirect('/home'));
   }
 });
+
 
 app.post('/friend-request/approve', async (req, res) => {
   const { username } = req.body;
