@@ -558,14 +558,14 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Get requests
 
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
+      return res.redirect('/');
     }
-    return res.redirect('/logout');
+    res.render('pages/logout');
   });
 });
 
