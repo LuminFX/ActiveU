@@ -46,6 +46,12 @@ const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
   partialsDir: __dirname + '/views/partials',
+  helpers: {
+    formatDate: function (isoDate) {
+      const date = new Date(isoDate);
+      return date.toLocaleDateString(); // Formats date to MM/DD/YYYY or locale-specific format
+    },
+  },
 });
 // Register `hbs` as our view engine using its bound `engine()` function.
 
@@ -116,7 +122,7 @@ app.get('/register', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
 
-  // Clear session variables after retrieving them
+  // clear session variables after retrieving them
   req.session.message = null;
   req.session.error = null;
 
@@ -204,10 +210,17 @@ app.get('/account', auth, async (req, res) => { // get basic account information
     const friends = await db.any(acceptedFriendsQuery, [username]);
 
     const workout_query = `
-      SELECT workout_name, duration, DATE(workout_date) AS workout_date
-      FROM workouts
-      WHERE ($1 = workouts.username);
-    `;
+    SELECT 
+      workout_id, 
+      workout_name, 
+      username, 
+      DATE(workout_date) AS workout_date, 
+      duration
+    FROM workouts
+    WHERE username = $1;
+
+  `;
+
 
     const workout = await db.any(workout_query, [username]);
     console.log(workout);
@@ -229,7 +242,6 @@ app.get('/createWorkout', auth, (req, res) => {
   res.render('pages/createWorkout'); // Render createWorkout.hbs
 });
 
-// Route for Add Workout page
 app.get('/logWorkout', auth, (req, res) => {
   res.render('pages/logWorkout'); // Render addWorkout.hbs
 });
@@ -388,6 +400,30 @@ app.post('/friend-request/remove', async (req, res) => {
   }
 });
 
+app.post('/remove-workout', async (req, res) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).send({ error: "Exercise ID is required" });
+  }
+
+  try {
+    const result = await db.query(
+      'DELETE FROM workouts WHERE workout_id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send({ error: "Workout not found" });
+    }
+
+    res.status(200).send({ success: true, message: `Workout ${id} removed successfully` });
+  } catch (error) {
+    console.error("Error removing workout:", error);
+    res.status(500).send({ error: 'Failed to remove workout' });
+  }
+});
+
 app.post('/friend-request/send', async (req, res) => {
   const { username } = req.body;
   const currentUser = req.session.user.username;
@@ -470,7 +506,7 @@ app.post('/login', async (req, res) => {
     }
 
     // if password matches
-    req.session.message = null; // Clear any previous messages
+    req.session.message = null; // clear any previous messages
     req.session.error = null;
 
     req.session.user = user;
@@ -480,7 +516,7 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Error logging in:', error);
-    return res.status(500).render('pages/login');  // Set status 500 here for unexpected errors
+    return res.status(500).render('pages/login');  // set status 500 here for unexpected errors
   }
 });
 
@@ -514,14 +550,12 @@ app.post('/register', async (req, res) => {
 // Get requests
 
 app.get('/logout', (req, res) => {
-  // Destroy the session
   req.session.destroy((err) => {
     if (err) {
       console.error('Error destroying session:', err);
-      return res.redirect('/'); // Redirect to home if session destruction fails
+      return res.redirect('/');
     }
 
-    // Render the logout page with a success message
     res.render('pages/logout');
   });
 });
@@ -529,7 +563,7 @@ app.get('/logout', (req, res) => {
 app.get('/debug/users', async (req, res) => {
   try {
     const users = await db.any('SELECT * FROM users');
-    res.json(users); // Return the data as JSON
+    res.json(users); // return the data as json
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).send('Error fetching users');
@@ -539,7 +573,7 @@ app.get('/debug/users', async (req, res) => {
 app.get('/debug/friends', async (req, res) => {
   try {
     const friendships = await db.any('SELECT * FROM friendships');
-    res.json(friendships); // Return the data as JSON
+    res.json(friendships); // return the data as json
   } catch (error) {
     console.error('Error fetching friendships:', error);
     res.status(500).send('Error fetching users');
@@ -549,7 +583,7 @@ app.get('/debug/friends', async (req, res) => {
 app.get('/debug/add-workout', async (req, res) => {
   try {
     const workout = await db.any('SELECT * FROM workouts');
-    res.json(workout); // Return the data as JSON
+    res.json(workout); // return the data as json
   } catch (error) {
     console.error('Error fetching workouts:', error);
     res.status(500).send('Error fetching workouts');
@@ -572,20 +606,16 @@ app.get('/genpassword/:password', async (req, res) => {
   }
 });
 
-
-
 app.get('/api/workouts', async (req, res) => {
   const { difficulty, muscle, type } = req.query;
 
   console.log("Received query parameters:", { difficulty, muscle, type });
 
   try {
-      // Ensure at least one parameter is provided
       if (!difficulty && !muscle && !type) {
           return res.status(400).json({ error: "At least one filter (difficulty, muscle, or type) must be provided." });
       }
 
-      // Determine filter and construct the API URL
       let filter = '';
       let value = '';
       if (difficulty) {
@@ -601,13 +631,11 @@ app.get('/api/workouts', async (req, res) => {
       const apiUrl = `https://api.api-ninjas.com/v1/exercises?${filter}=${encodeURIComponent(value)}`;
       console.log(`Fetching from API: ${apiUrl}`);
 
-      // Make the API request
       const apiKey = process.env.API_KEY;
       const response = await axios.get(apiUrl, {
           headers: { 'X-Api-Key': apiKey },
       });
 
-      // Send the API response to the client
       res.json(response.data);
   } catch (error) {
       if (error.response) {
