@@ -141,7 +141,7 @@
                                 <p><strong>Instructions:</strong> ${workout.instructions}</p>
                             </div>
                             <div class="card-footer text-left">
-                                <button class="btn btn-warning">Add Workout</button>
+                                <button id="add-button" class="btn btn-warning">Add Workout</button>
                             </div>
                         </div>
                     `;
@@ -152,7 +152,66 @@
                 searchResultsDiv.innerHTML =
                     "<p>Failed to fetch workouts. Please try again later.</p>";
             }
+
         });
+
+
+        searchResultsDiv.addEventListener('click', async (event) => {
+    if (event.target && event.target.id === 'add-button') {
+        const cardBody = event.target.closest(".card").querySelector(".card-body");
+
+        // Extract workout name
+        const workoutName = cardBody.querySelector(".card-title").textContent;
+
+        // Prompt the user for time in HH:MM:SS format
+        const timeInput = prompt("Enter the workout duration (HH:MM:SS):");
+        
+        // Validate the time input
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])$/;
+        if (!timeInput || !timeRegex.test(timeInput)) {
+            alert("Invalid time format. Please use HH:MM:SS.");
+            return;
+        }
+
+        const workoutData = {
+            name: workoutName,
+            duration: timeInput,
+        };
+
+        try {
+            const response = await fetch(`/add-workout`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ workoutData }),
+            });
+
+            if (response.ok) {
+                console.log('Saving workout:', workoutData);
+
+                location.reload();
+            } else {
+                console.error(`Failed to Process Workout`);
+            }
+        } catch (error) {
+            console.error("Error Processing workout", error);
+        }
+    }
+});
+
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+        }
+
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
     </script>
     
     {{!-- for the footer to render in the correct spot. --}}

@@ -23,11 +23,13 @@
                     {{!-- add table headings here --}}
                   </tr>
                 </thead>
-                <ul class="list-group">
+                <ul id="workouts" class="list-group">
                     {{#each workout}}
                       <div class="list-group-item d-flex justify-content-between" id="list-tab" role="tablist">
-                          {{this.workout_name}}, {{this.duration}}, {{this.workout_date}}
+                          {{this.workout_name}}, {{this.duration}}, {{formatDate this.workout_date}}
+                          <button class="btn btn-danger btn-sm" data-workout-id="{{this.workout_id}}" data-action="remove">Remove</button>
                       </div>
+                      
                     {{else}}
                       <tr>
                         <td colspan="4" class="text-center">No workouts. (－.－)...zzz</td>
@@ -37,18 +39,27 @@
               </table>
             </div>
 
-            <!-- Mutual Friends Section -->
             <h4>Friends</h4>
-            <div id="friends" class="mb-5">
-              <ul class="list-group">
-                {{#each friends}}
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
-                    <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
-                  </li>
-                {{/each}}
-              </ul>
-            </div>
+            <table class="table table-dark table-striped">
+                <thead>
+                  <tr>
+                    {{!-- add table headings here --}}
+                  </tr>
+                </thead>
+                <ul id="friends" class="list-group">
+                    {{#each friends}}
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
+                        <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
+                      </li>
+                      
+                    {{else}}
+                      <tr>
+                        <td colspan="4" class="text-center">No friends. (×﹏×)</td>
+                      </tr>
+                    {{/each}}
+                </ul>
+              </table>
           </div>
         </div>
       </div>
@@ -57,9 +68,10 @@
 </body>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () =>{
-     const friendsContainer = document.getElementById("friends");
-     friendsContainer.addEventListener("click", async (event) => {
+  document.addEventListener("DOMContentLoaded", () => {
+    // Handle "Remove Friend" button
+    const friendsContainer = document.getElementById("friends");
+    friendsContainer.addEventListener("click", async (event) => {
       const button = event.target;
 
       if (button.tagName === "BUTTON" && button.dataset.action) {
@@ -84,5 +96,58 @@
         }
       }
     });
+
+    const workoutTable = document.getElementById("workouts");
+if (!workoutTable) {
+  console.error("Error: Workout table element not found in DOM.");
+}
+
+workoutTable?.addEventListener("click", async (event) => {
+  const button = event.target;
+
+  // Validate the clicked element
+  if (button.tagName === "BUTTON" && button.dataset.action === "remove") {
+    const workoutId = button.dataset.workoutId; // Fetch the ID from the button
+
+    // Ensure exerciseId exists
+    if (!workoutId) {
+      console.error("Error: Missing workoutId in button's dataset.");
+      return;
+    }
+
+    console.log(`Attempting to remove workout with ID: ${workoutId}`);
+
+    try {
+      const response = await fetch(`/remove-workout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: workoutId }),
+      });
+
+      // Log additional response information for debugging
+      if (!response.ok) {
+        console.error(
+          `Failed to remove workout. Status: ${response.status}, StatusText: ${response.statusText}`
+        );
+        const errorText = await response.text();
+        console.error(`Error response from server: ${errorText}`);
+      } else {
+        console.log(`Workout ${workoutId} removed successfully.`);
+        location.reload();
+      }
+    } catch (error) {
+      console.error("Error occurred during fetch request:", error);
+    }
+  } else {
+    // Log if the click is not on the expected button
+    console.warn("Click event not on a valid remove button.");
+  }
+});
+
+
+
   });
 </script>
+
