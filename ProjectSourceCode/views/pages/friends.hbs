@@ -72,6 +72,10 @@
                   <a href="/profile?username={{this.username}}" class="text-decoration-none">{{this.username}}</a>
                   <button class="btn btn-danger btn-sm" data-username="{{this.username}}" data-action="remove">Remove</button>
                 </li>
+                {{else}}
+                  <div class="alert alert-info" role="alert">
+                    No friends.
+                  </div>
               {{/each}}
             </ul>
           </div>

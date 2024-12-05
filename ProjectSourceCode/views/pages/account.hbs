@@ -69,7 +69,6 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Handle "Remove Friend" button
     const friendsContainer = document.getElementById("friends");
     friendsContainer.addEventListener("click", async (event) => {
       const button = event.target;
@@ -105,11 +104,9 @@ if (!workoutTable) {
 workoutTable?.addEventListener("click", async (event) => {
   const button = event.target;
 
-  // Validate the clicked element
   if (button.tagName === "BUTTON" && button.dataset.action === "remove") {
-    const workoutId = button.dataset.workoutId; // Fetch the ID from the button
+    const workoutId = button.dataset.workoutId;
 
-    // Ensure exerciseId exists
     if (!workoutId) {
       console.error("Error: Missing workoutId in button's dataset.");
       return;
@@ -126,7 +123,6 @@ workoutTable?.addEventListener("click", async (event) => {
         body: JSON.stringify({ id: workoutId }),
       });
 
-      // Log additional response information for debugging
       if (!response.ok) {
         console.error(
           `Failed to remove workout. Status: ${response.status}, StatusText: ${response.statusText}`
@@ -141,7 +137,6 @@ workoutTable?.addEventListener("click", async (event) => {
       console.error("Error occurred during fetch request:", error);
     }
   } else {
-    // Log if the click is not on the expected button
     console.warn("Click event not on a valid remove button.");
   }
 });

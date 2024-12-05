@@ -87,7 +87,6 @@
             const stopButton = document.getElementById('stopButton');
             const saveWorkoutButton = document.getElementById('saveWorkoutButton');
 
-            // Timer buttons
             startButton.addEventListener('click', () => {
                 if (!isPaused) elapsedTime = 0;
                 isPaused = false;
@@ -107,7 +106,6 @@
                 stopTimer();
             });
 
-            // Save Workout button
             saveWorkoutButton.addEventListener('click', async () => {
                 const workoutName = document.getElementById('workoutName').value.trim();
                 if (!workoutName) {
@@ -131,7 +129,7 @@
 
                     if (response.ok) {
                         alert('Workout saved successfully!');
-                        stopTimer(); // Stop the timer after saving
+                        stopTimer();
                         resetForm();
                     } else {
                         alert('Failed to save workout. Please try again.');
@@ -145,7 +143,7 @@
             function stopTimer() {
                 clearInterval(timerInterval);
                 timerDisplay.textContent = formatTime(elapsedTime);
-                isPaused = true; // Ensure timer is paused
+                isPaused = true;
             }
 
             function resetForm() {
