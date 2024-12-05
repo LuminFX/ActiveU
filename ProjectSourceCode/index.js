@@ -602,7 +602,7 @@ app.get('/api/workouts', async (req, res) => {
       console.log(`Fetching from API: ${apiUrl}`);
 
       // Make the API request
-      const apiKey = api_key;
+      const apiKey = process.env.API_KEY;
       const response = await axios.get(apiUrl, {
           headers: { 'X-Api-Key': apiKey },
       });
@@ -623,8 +623,6 @@ app.get('/api/workouts', async (req, res) => {
       res.status(500).json({ error: "Failed to fetch exercises" });
   }
 });
-
-
 
 // ------------------------------------
 //             Start Server
